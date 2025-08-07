@@ -1,6 +1,0 @@
-services:
-  - type: static
-    name: Foodist-Frontend
-    env: node
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
