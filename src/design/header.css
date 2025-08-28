@@ -1,0 +1,156 @@
+/* Header container with flexbox layout */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 80px; /* Fixed height for consistent alignment */
+}
+
+/* Left-aligned section */
+.header-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    padding-left: 200px;
+}
+
+/* Center section */
+.header-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+/* Right-aligned section */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    justify-content: flex-end;
+    padding-right: 200px;
+}
+
+/* Logo styles - fixed for flexbox */
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
+}
+
+/* Search container and components - fixed for flexbox */
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-bar {
+    width: 262px;
+    height: 40px;
+    border-radius: 25px;
+    border: 1px solid #000000;
+    padding: 0 50px 0 20px;
+    font-family: Inter;
+    font-size: 16px;
+    outline: none;
+    background: white;
+}
+
+.search-bar::placeholder {
+    color: #999;
+    font-family: Inter;
+    font-size: 16px;
+}
+
+.search-icon-button {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.search-icon {
+    width: 21px;
+    height: 21px;
+    font-size: 21px;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Search component styling */
+.search {
+    display: flex;
+    align-items: center;
+}
+
+/* Liked icon container and styling - fixed for flexbox */
+.liked-icon-container {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.liked-icon {
+    width: 54px;
+    height: 54px;
+    font-size: 54px;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.liked-icon:hover {
+    color: #e53e3e;
+}
+
+/* User icon container and styling - fixed for flexbox */
+.user-icon-container {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Liked component styling */
+.liked {
+    display: flex;
+    align-items: center;
+}
+
+/* User component styling */
+.user {
+    display: flex;
+    align-items: center;
+}
