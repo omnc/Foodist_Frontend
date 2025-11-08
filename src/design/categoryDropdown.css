@@ -1,0 +1,148 @@
+/* Category dropdown container */
+.category-dropdown {
+    position: relative;
+    display: block;
+    width: 1230px;
+    max-width: 1230px;
+    margin: 0 auto;
+    background: white;
+    z-index: 999;
+    margin-top: 100px;
+}
+
+/* Category header styles */
+.category-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px 0;
+    width: 100%;
+    background: white;
+    position: relative;
+    z-index: 999;
+}
+
+/* Category items */
+.category-dropdown-header-item {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 22px;
+    letter-spacing: 0%;
+    text-align: center;
+    cursor: pointer;
+    padding: 10px 15px;
+    transition: color 0.2s ease;
+    position: relative;
+    color: #000000;
+    white-space: nowrap;
+    background: transparent;
+    border: none;
+    display: block;
+    height: auto;
+    min-height: 22px;
+}
+
+.category-dropdown-header-item:hover {
+    color: #667eea;
+}
+
+/* Content dropdown */
+.category-dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 1230px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    display: none;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    padding: 25px;
+    height: auto;
+    min-height: 200px;
+    max-height: 300px;
+}
+
+/* Show content on hover */
+.category-dropdown:hover .category-dropdown-content {
+    display: grid;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Content sections */
+.content-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Hide section titles */
+.content-section-title {
+    display: none;
+}
+
+/* Content items */
+.category-dropdown-content-item {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 120%;
+    letter-spacing: 0%;
+    text-align: left;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.category-dropdown-content-item:hover {
+    background-color: #f8f9ff;
+    color: #667eea;
+    transform: translateX(5px);
+}
+
+/* Hide About Us content section */
+.content-section.about-us {
+    display: none;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    .category-dropdown-content {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .category-dropdown-header {
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+    
+    .category-dropdown-content {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 20px;
+    }
+    
+    .category-dropdown-header-item {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-dropdown-content {
+        grid-template-columns: 1fr;
+    }
+}

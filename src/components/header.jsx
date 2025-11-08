@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import UserDropDown from './userDropDown';
-import logo from '../assets/logo.png';
+import logo from '../assets/Logo.png';
 import '../design/header.css';
 
 function Logo() {
