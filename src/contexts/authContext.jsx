@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Verify token with server
-      const response = await fetch('http://localhost:4000/recipe/mine/me', {
+      const response = await fetch('https://foodist-backend.onrender.com/recipe/mine/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:4000/auth/login', {
+      const response = await fetch('https://foodist-backend.onrender.com/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:4000/auth/register', {
+      const response = await fetch('https://foodist-backend.onrender.com/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
