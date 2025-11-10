@@ -7,6 +7,10 @@ function LogInPage() {
     const [password, setPassword] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
+    const {isloading} = useAuth();
+    if (isloading) {
+        return <div>Loading...</div>;
+    }
     const handleLogin = async () => {
         await login(email, password);
         navigate('/');
