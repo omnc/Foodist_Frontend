@@ -3,13 +3,15 @@ import { useAuth } from '../contexts/authContext';
 import { useNavigate } from 'react-router-dom';
 
 function SignInPage() {
-    const [email, setEmail] = useState('');
+     const navigate = useNavigate();
+     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const { register } = useAuth();
-    const {isloading} = useAuth();
+    const { register, isLoading } = useAuth();
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
    
-    const navigate = useNavigate();
     const handleSignIn = async () => {
         await register(email, password);
         const result = await register(email, password);
@@ -18,11 +20,7 @@ function SignInPage() {
         } else {
             setError(result.error);
         }
-    } 
-    if (isloading) {
-        return <div>Loading...</div>;
     }
-    else {
     return (
         <div>
             <h1>Sign In</h1>
@@ -52,7 +50,6 @@ function SignInPage() {
             </div>
         </div>
     );
-    }
 }
 
 export default SignInPage;

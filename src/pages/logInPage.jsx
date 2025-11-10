@@ -5,10 +5,9 @@ import { useNavigate } from 'react-router-dom';
 function LogInPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login } = useAuth();
+    const { login, isLoading } = useAuth();
     const navigate = useNavigate();
-    const {isloading} = useAuth();
-    if (isloading) {
+    if (isLoading) {
         return <div>Loading...</div>;
     }
     const handleLogin = async () => {
