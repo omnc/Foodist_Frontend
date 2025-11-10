@@ -7,6 +7,7 @@ function SignInPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const { register } = useAuth();
+    const navigate = useNavigate();
     const handleSignIn = async () => {
         await register(email, password);
         const result = await register(email, password);
