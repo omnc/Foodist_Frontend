@@ -41,6 +41,9 @@ function SignInPage() {
                 placeholder="Confirm Password" />
                 <button type="submit">Register</button>
             </form>
+            <div>
+                <button onClick={() => navigate('/login')}>Do you have an account? Login</button>
+            </div>
         </div>
     );
 }

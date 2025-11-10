@@ -1,9 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/authContext';
+import { useNavigate } from 'react-router-dom';
 
 function LogInPage() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const { login } = useAuth();
+    const navigate = useNavigate();
+    const handleLogin = async () => {
+        await login(email, password);
+        navigate('/');
+    }
     return (
         <div>
             <h1>Log In</h1>
+            <form onSubmit={handleLogin}>
+                <input type="email" 
+                id="email"
+                autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+                placeholder="Email" />
+                <input type="password"
+                id="password"
+                autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+                placeholder="Password" />
+                <button type="submit">Log In</button>
+            </form>
+            <div>
+                <button onClick={() => navigate('/signin')}>Don't have an account? Sign In</button>
+            </div>
         </div>
     );
 }
