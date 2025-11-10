@@ -8,9 +8,7 @@ function SignInPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const { register } = useAuth();
     const {isloading} = useAuth();
-    if (isloading) {
-        return <div>Loading...</div>;
-    }
+   
     const navigate = useNavigate();
     const handleSignIn = async () => {
         await register(email, password);
@@ -20,7 +18,11 @@ function SignInPage() {
         } else {
             setError(result.error);
         }
+    } 
+    if (isloading) {
+        return <div>Loading...</div>;
     }
+    else {
     return (
         <div>
             <h1>Sign In</h1>
@@ -50,6 +52,7 @@ function SignInPage() {
             </div>
         </div>
     );
+    }
 }
 
 export default SignInPage;
