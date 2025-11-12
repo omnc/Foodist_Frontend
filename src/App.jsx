@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { HashRouter, Routes, Route } from 'react-router';
 import { AuthProvider } from './contexts/authContext.jsx';
 import MainPage from './pages/mainPage.jsx';
 import LogInPage from './pages/logInPage.jsx';
@@ -9,14 +9,14 @@ import MyPage from './pages/myPage.jsx';
 function App() {
     return (
         <AuthProvider>
-            <BrowserRouter>
+            <HashRouter>
                 <Routes>
                     <Route path="/" element={<MainPage />} />
                     <Route path="/login" element={<LogInPage />} />
                     <Route path="/signin" element={<SignInPage />} />
                     <Route path="/mypage" element={<MyPage />} />
                 </Routes>
-            </BrowserRouter>
+            </HashRouter>
         </AuthProvider>
     );
 }
