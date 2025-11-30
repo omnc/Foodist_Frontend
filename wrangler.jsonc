@@ -1,5 +1,5 @@
 {
     "name": "foodist-frontend",
     "compatibility_date": "2025-11-30",
-    "main": "main.jsx"
+    "main": "src/main.jsx"
   }
