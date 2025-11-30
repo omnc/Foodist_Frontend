@@ -17,10 +17,10 @@ export const AuthProvider = ({ children }) => {
 
   // Check login status once when app loads
   useEffect(() => {
-    checkLoginStatus();
+    checkAuth();
   }, []);
 
-  const checkLoginStatus = async () => {
+  const checkAuth = async () => {
     try {
       const token = localStorage.getItem('token');
       const email = localStorage.getItem('userEmail');
@@ -31,14 +31,15 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Verify token with server
-      const response = await fetch('https://foodist-backend.onrender.com/recipe/mine/me', {
+      const response = await fetch('https://foodist-backend.onrender.com/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
       if (response.ok) {
-        setUser({ token, email });
+        const userData = await response.json();
+        setUser({ token, email, ...userData });
       } else {
         // Token is invalid, clear storage
         localStorage.removeItem('token');
@@ -51,10 +52,9 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     }
   };
-
   const login = async (email, password) => {
     try {
-      const response = await fetch('https://foodist-backend.onrender.com/auth/login', {
+      const response = await fetch('https://foodist_backend.omnc2019.workers.dev/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password) => {
     try {
-      const response = await fetch('https://foodist-backend.onrender.com/auth/register', {
+      const response = await fetch('https://foodist_backend.omnc2019.workers.dev/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
