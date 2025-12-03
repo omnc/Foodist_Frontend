@@ -17,7 +17,7 @@ function SignInPage() {
         const result = await register(email, password);
         if (result.success) {
             navigate('/login');
-        } else {
+        } else if (result.statuscode === 400) {
             setError(result.error);
         }
     }

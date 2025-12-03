@@ -12,7 +12,12 @@ function LogInPage() {
     }
     const handleLogin = async () => {
         await login(email, password);
-        navigate('/');
+        const result = await login(email, password);
+        if (result.success) {
+            navigate('/');
+        } else if (result.statuscode === 404) {
+            setError(result.error);
+        }
     }
     return (
         <div>

@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Verify token with server
-      const response = await fetch('https://foodist-backend.onrender.com/auth/me', {
+      const response = await fetch('https://foodist_backend.omnc2019.workers.dev/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -64,8 +64,10 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+      if (response.status === 404) {
+        return{ success: false, error: data.message || 'User not found', statuscode: 404 };
+      }else if(response.status === 401) {
+        return{ success: false, error: data.message || 'Invalid password', statuscode: 401 };
       }
 
       // Store token and user data
@@ -93,8 +95,8 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+      if(response.status === 400) {
+        return{ success: false, error: data.message || 'User already exists', statuscode: 400 };
       }
 
       setError(null);
