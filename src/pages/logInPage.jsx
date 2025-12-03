@@ -15,6 +15,7 @@ function LogInPage() {
         const result = await login(email, password);
         if (result.success) {
             navigate('/');
+            console.log('Logged in successfully');
         } else if (result.statuscode === 404) {
             setError(result.error);
         }
