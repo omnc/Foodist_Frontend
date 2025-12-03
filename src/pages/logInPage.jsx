@@ -18,6 +18,10 @@ function LogInPage() {
             console.log('Logged in successfully');
         } else if (result.statuscode === 404) {
             setError(result.error);
+        }else if (result.statuscode === 401) {
+            setError(result.error);
+        }else{
+            setError('An unknown error occurred');
         }
     }
     return (
