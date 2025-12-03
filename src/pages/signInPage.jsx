@@ -12,7 +12,8 @@ function SignInPage() {
         return <div>Loading...</div>;
     }
    
-    const handleSignIn = async () => {
+    const handleSignIn = async (e) => {
+        e.preventDefault();
         await register(email, password);
         const result = await register(email, password);
         if (result.success) {

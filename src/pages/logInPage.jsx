@@ -10,7 +10,8 @@ function LogInPage() {
     if (isLoading) {
         return <div>Loading...</div>;
     }
-    const handleLogin = async () => {
+    const handleLogin = async (e) => {
+        e.preventDefault();
         await login(email, password);
         const result = await login(email, password);
         if (result.success) {
