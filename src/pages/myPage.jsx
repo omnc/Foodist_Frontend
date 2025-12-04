@@ -1,9 +1,26 @@
 import React from 'react';
-
+import { useAuth } from '../contexts/authContext';
+import { useRecipe } from '../contexts/recipeContext';
+import { Navigate } from 'react-router-dom';
+import Header from '../components/header';
+const {user, isAuthenticated} = useAuth();
+const {recipes} = useRecipe();
 function MyPage() {
+    if(!isAuthenticated) {
+        return <Navigate to="/login" />;
+    }
+    const myRecipes = recipes.filter(recipe => recipe.userId === user.id);
     return (
         <div>
-            <h1>My Page</h1>
+            <Header />
+            <div className="myRecipes">
+                <h1>My Recipes</h1>
+                <ul>
+                    {myRecipes.map(recipe => (
+                        <li key={recipe.id}>{recipe.name}</li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 }
