@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/authContext.jsx';
 import MainPage from './pages/mainPage.jsx';
 import LogInPage from './pages/logInPage.jsx';
