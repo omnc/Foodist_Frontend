@@ -3,9 +3,11 @@ import { useAuth } from '../contexts/authContext';
 import { useRecipe } from '../contexts/recipeContext';
 import { Navigate } from 'react-router-dom';
 import Header from '../components/header';
-const {user, isAuthenticated} = useAuth();
-const {recipes} = useRecipe();
+
 function MyPage() {
+    const {user, isAuthenticated} = useAuth();
+    const {recipes} = useRecipe();
+    
     if(!isAuthenticated) {
         return <Navigate to="/login" />;
     }
