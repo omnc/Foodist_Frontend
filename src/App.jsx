@@ -6,6 +6,7 @@ import MainPage from './pages/mainPage.jsx';
 import LogInPage from './pages/logInPage.jsx';
 import SignInPage from './pages/signInPage.jsx';
 import MyPage from './pages/myPage.jsx';
+import PostPage from './pages/postPage.jsx';
 
 function App() {
     return (
@@ -16,7 +17,8 @@ function App() {
                         <Route path="/" element={<MainPage />} />
                         <Route path="/login" element={<LogInPage />} />
                         <Route path="/signin" element={<SignInPage />} />
-                        <Route path="/mypage" element={<MyPage />} />
+                        <Route path="/myPage" element={<MyPage />} />
+                        <Route path="/post" element={<PostPage />} />
                     </Routes>
                 </HashRouter>
             </RecipeProvider>

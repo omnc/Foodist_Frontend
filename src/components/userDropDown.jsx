@@ -96,7 +96,7 @@ const LoggedInMenu = ({ user, onLogout, onNavigate }) => {
             <div className="dropdown-items">
                 <button 
                     className="dropdown-item"
-                    onClick={() => onNavigate('/profile')}
+                    onClick={() => onNavigate('/myPage')}
                 >
                     <span className="icon">👤</span>
                     Profile
@@ -104,7 +104,7 @@ const LoggedInMenu = ({ user, onLogout, onNavigate }) => {
                 
                 <button 
                     className="dropdown-item"
-                    onClick={() => onNavigate('/add-recipe')}
+                    onClick={() => onNavigate('/postPage')}
                 >
                     <span className="icon">➕</span>
                     Add Recipe

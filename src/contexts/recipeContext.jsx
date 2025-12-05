@@ -44,25 +44,33 @@ export const RecipeProvider = ({ children }) => {
             setIsLoading(false);
         }
     }
-    const createRecipe = async (recipe) => {
+    const createRecipe = async (recipeData) => {
         if (!isAuthenticated) {
-            return{ success: false, error: 'Unauthorized', statuscode: 401 };
+            return { success: false, error: 'Unauthorized', statuscode: 401 };
         }
         try {
-            const response = await fetch('https://foodist_backend.omnc2019.workers.dev/recipes', {
+            setIsLoading(true);
+            const response = await fetch('https://foodist-backend.onrender.com/recipe/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
                 },
-                body: JSON.stringify(recipe)
+                body: JSON.stringify(recipeData)
             });
-            if (!response.ok) {
-                throw new Error('Failed to create recipe');
-            }
+            
             const data = await response.json();
-            setRecipe(data);
+            
+            if (!response.ok) {
+                return { success: false, error: data.message || 'Failed to create recipe', statuscode: response.status };
+            }
+            
+            setRecipes([...recipes, data]);
+            setError(null);
+            return { success: true, data };
         } catch (error) {
             setError(error.message);
+            return { success: false, error: error.message };
         } finally {
             setIsLoading(false);
         }
@@ -118,10 +126,11 @@ export const RecipeProvider = ({ children }) => {
         updateRecipe,
         deleteRecipe
     };
-        return (
-        <RecipeContext.Provider value={{}}>
-        {children}
-    </RecipeContext.Provider>
+    
+    return (
+        <RecipeContext.Provider value={value}>
+            {children}
+        </RecipeContext.Provider>
     );
 };
     
