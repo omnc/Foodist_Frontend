@@ -50,7 +50,7 @@ export const RecipeProvider = ({ children }) => {
         }
         try {
             setIsLoading(true);
-            const response = await fetch('https://foodist-backend.onrender.com/recipe/create', {
+            const response = await fetch('https://foodist-backend.onrender.com/recipes', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
