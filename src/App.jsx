@@ -18,7 +18,7 @@ function App() {
                         <Route path="/login" element={<LogInPage />} />
                         <Route path="/signin" element={<SignInPage />} />
                         <Route path="/myPage" element={<MyPage />} />
-                        <Route path="/post" element={<PostPage />} />
+                        <Route path="/postPage" element={<PostPage />} />
                     </Routes>
                 </HashRouter>
             </RecipeProvider>
