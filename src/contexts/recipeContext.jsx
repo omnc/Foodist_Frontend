@@ -12,7 +12,7 @@ export const useRecipe = () => {
 
 export const RecipeProvider = ({ children }) => {
     const [recipes, setRecipes] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
     const { user, isAuthenticated } = useAuth();
