@@ -44,7 +44,7 @@ export const RecipeProvider = ({ children }) => {
             setIsLoading(false);
         }
     }
-    const createRecipe = async (recipeData) => {
+    const createRecipe = async (formData) => {
         if (!isAuthenticated) {
             return { success: false, error: 'Unauthorized', statuscode: 401 };
         }
@@ -53,10 +53,10 @@ export const RecipeProvider = ({ children }) => {
             const response = await fetch('https://foodist-backend.onrender.com/recipes', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.token}`
+                    // Don't set Content-Type - browser will set it with boundary for multipart/form-data
                 },
-                body: JSON.stringify(recipeData)
+                body: formData
             });
             
             const data = await response.json();

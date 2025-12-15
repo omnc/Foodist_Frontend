@@ -18,11 +18,12 @@ function PostPage() {
     const [level, setLevel] = useState(1);
     const [prepTime, setPrepTime] = useState(0);
     const [cookTime, setCookTime] = useState(0);
-    const [titleImage, setTitleImage] = useState('');
+    const [titleImage, setTitleImage] = useState(null);
+    const [note, setNote] = useState('');
     
     // Dynamic fields
     const [ingredients, setIngredients] = useState([{ name: '', amount: '', unit: '' }]);
-    const [descriptionBlocks, setDescriptionBlocks] = useState([{ step: 1, content: '' }]);
+    const [descriptionBlocks, setDescriptionBlocks] = useState([{ step: 1, content: '', image: null }]);
     
     const [error, setError] = useState('');
 
@@ -47,7 +48,7 @@ function PostPage() {
     };
 
     const addStep = () => {
-        setDescriptionBlocks([...descriptionBlocks, { step: descriptionBlocks.length + 1, content: '' }]);
+        setDescriptionBlocks([...descriptionBlocks, { step: descriptionBlocks.length + 1, content: '', image: null }]);
     };
 
     const removeStep = (index) => {
@@ -64,24 +65,52 @@ function PostPage() {
         setDescriptionBlocks(updated);
     };
 
+    const updateStepImage = (index, file) => {
+        const updated = descriptionBlocks.map((block, i) => 
+            i === index ? { ...block, image: file } : block
+        );
+        setDescriptionBlocks(updated);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
-        const recipeData = {
-            title,
-            description,
-            mealType,
-            servingSize: parseInt(servingSize),
-            level: parseInt(level),
-            prepTime: parseInt(prepTime),
-            cookTime: parseInt(cookTime),
-            titleImage: titleImage || null,
-            ingredients,
-            descriptionBlocks
-        };
+        const formData = new FormData();
+        
+        // Add basic recipe info
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('mealType', mealType);
+        formData.append('servingSize', servingSize.toString());
+        formData.append('level', level.toString());
+        formData.append('prepTime', prepTime.toString());
+        formData.append('cookTime', cookTime.toString());
+        if (note) formData.append('note', note);
+        
+        // Add title image if exists
+        if (titleImage) {
+            formData.append('titleImage', titleImage);
+        }
+        
+        // Add ingredients as JSON string
+        formData.append('ingredients', JSON.stringify(ingredients));
+        
+        // Add description blocks (without images)
+        const blocksData = descriptionBlocks.map(block => ({
+            step: block.step,
+            content: block.content
+        }));
+        formData.append('descriptionBlocks', JSON.stringify(blocksData));
+        
+        // Add step images
+        descriptionBlocks.forEach((block, index) => {
+            if (block.image) {
+                formData.append(`stepImage_${index}`, block.image);
+            }
+        });
 
-        const result = await createRecipe(recipeData);
+        const result = await createRecipe(formData);
 
         if (result.success) {
             navigate('/');
@@ -129,16 +158,19 @@ function PostPage() {
                             <div className="form-group">
                                 <label>Thumbnail photo</label>
                                 <div className="image-upload">
-                                    <div className="image-upload-icon">📷</div>
-                                    <div className="image-upload-text">
-                                        <input 
-                                            type="text" 
-                                            value={titleImage}
-                                            onChange={(e) => setTitleImage(e.target.value)}
-                                            placeholder="Image URL"
-                                            style={{ width: '100%', marginTop: '8px', padding: '6px', border: '1px solid #ddd', borderRadius: '4px' }}
-                                        />
-                                    </div>
+                                    <input 
+                                        type="file" 
+                                        accept="image/*"
+                                        onChange={(e) => setTitleImage(e.target.files[0])}
+                                        style={{ display: 'none' }}
+                                        id="thumbnail-upload"
+                                    />
+                                    <label htmlFor="thumbnail-upload" style={{ cursor: 'pointer', display: 'block' }}>
+                                        <div className="image-upload-icon">📷</div>
+                                        <div className="image-upload-text">
+                                            {titleImage ? titleImage.name : 'Click to upload image'}
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -296,7 +328,21 @@ function PostPage() {
                                         required
                                     />
                                     <div className="image-upload" style={{ padding: '20px 10px' }}>
-                                        <div className="image-upload-icon" style={{ fontSize: '24px' }}>📷</div>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*"
+                                            onChange={(e) => updateStepImage(index, e.target.files[0])}
+                                            style={{ display: 'none' }}
+                                            id={`step-image-${index}`}
+                                        />
+                                        <label htmlFor={`step-image-${index}`} style={{ cursor: 'pointer', display: 'block' }}>
+                                            <div className="image-upload-icon" style={{ fontSize: '24px' }}>📷</div>
+                                            {block.image && (
+                                                <div className="image-upload-text" style={{ fontSize: '11px', marginTop: '4px' }}>
+                                                    {block.image.name}
+                                                </div>
+                                            )}
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -315,6 +361,8 @@ function PostPage() {
                         <h3>Note (Optional)</h3>
                         <div className="form-group">
                             <textarea 
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
                                 placeholder="If you want to add some extra information about the recipe you can do that here!"
                                 rows={4}
                             />
