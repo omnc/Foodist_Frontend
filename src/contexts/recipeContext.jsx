@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from './authContext';
+
 const RecipeContext = createContext();
 
 export const useRecipe = () => {
@@ -10,63 +11,31 @@ export const useRecipe = () => {
     return context;
 };
 
+const API_URL = 'https://foodist_backend.omnc2019.workers.dev';
+
 export const RecipeProvider = ({ children }) => {
     const [recipes, setRecipes] = useState([]);
+    const [currentRecipe, setCurrentRecipe] = useState(null); // Added for single recipe
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
     const { user, isAuthenticated } = useAuth();
+
+    // Helper to get auth headers
+    const getAuthHeaders = () => {
+        if (!user?.token) return {};
+        return { 'Authorization': `Bearer ${user.token}` };
+    };
+
     const getAllRecipes = async () => {
+        setIsLoading(true); // Added
+        setError(null);
         try {
-            const response = await fetch('https://foodist_backend.omnc2019.workers.dev/recipes');
+            const response = await fetch(`${API_URL}/recipes`);
             if (!response.ok) {
                 throw new Error('Failed to fetch recipes');
             }
             const data = await response.json();
             setRecipes(data);
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    }
-    const getRecipeById = async (id) => {
-        try {
-            const response = await fetch(`https://foodist_backend.omnc2019.workers.dev/recipes/${id}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch recipe');
-            }
-            const data = await response.json();
-            setRecipe(data);
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    }
-    const createRecipe = async (formData) => {
-        if (!isAuthenticated) {
-            return { success: false, error: 'Unauthorized', statuscode: 401 };
-        }
-        try {
-            setIsLoading(true);
-            const response = await fetch('https://foodist_backend.omnc2019.workers.dev/recipes', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${user.token}`
-                    // Don't set Content-Type - browser will set it with boundary for multipart/form-data
-                },
-                body: formData
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                return { success: false, error: data.message || 'Failed to create recipe', statuscode: response.status };
-            }
-            
-            setRecipes([...recipes, data]);
-            setError(null);
             return { success: true, data };
         } catch (error) {
             setError(error.message);
@@ -74,57 +43,126 @@ export const RecipeProvider = ({ children }) => {
         } finally {
             setIsLoading(false);
         }
-    }
-    const updateRecipe = async (id, recipe) => {
+    };
+
+    const getRecipeById = async (id) => {
+        setIsLoading(true); // Added
+        setError(null);
         try {
-            const response = await fetch(`https://foodist_backend.omnc2019.workers.dev/recipes/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(recipe)
-            });
+            const response = await fetch(`${API_URL}/recipes/${id}`);
             if (!response.ok) {
-                throw new Error('Failed to update recipe');
+                throw new Error('Failed to fetch recipe');
             }
             const data = await response.json();
-            setRecipe(data);
+            setCurrentRecipe(data); // Fixed: was setRecipe
+            return { success: true, data };
         } catch (error) {
             setError(error.message);
+            return { success: false, error: error.message };
         } finally {
             setIsLoading(false);
         }
-    }
-    const deleteRecipe = async (id) => {
+    };
+
+    const createRecipe = async (formData) => {
+        if (!isAuthenticated) {
+            return { success: false, error: 'Unauthorized', statusCode: 401 };
+        }
+        setIsLoading(true);
+        setError(null);
         try {
-            const response = await fetch(`https://foodist_backend.omnc2019.workers.dev/recipes/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const response = await fetch(`${API_URL}/recipes`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                // Don't set Content-Type - browser handles it for FormData
+                body: formData
             });
-            if (!response.ok) {
-                throw new Error('Failed to delete recipe');
-            }
+            
             const data = await response.json();
-            setRecipes(recipes.filter(recipe => recipe.id !== id));
-        }
-        catch (error) {
+            
+            if (!response.ok) {
+                // Backend returns { error: '...' } not { message: '...' }
+                return { success: false, error: data.error || 'Failed to create recipe', statusCode: response.status };
+            }
+            
+            setRecipes(prev => [...prev, data]);
+            return { success: true, data };
+        } catch (error) {
             setError(error.message);
+            return { success: false, error: error.message };
         } finally {
             setIsLoading(false);
         }
-    }
+    };
+
+    const updateRecipe = async (id, formData) => {
+        if (!isAuthenticated) {
+            return { success: false, error: 'Unauthorized', statusCode: 401 };
+        }
+        setIsLoading(true); // Added
+        setError(null);
+        try {
+            const response = await fetch(`${API_URL}/recipes/${id}`, {
+                method: 'PUT',
+                headers: getAuthHeaders(), // Added auth
+                body: formData // Changed to formData (backend expects FormData)
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                return { success: false, error: data.error || 'Failed to update recipe', statusCode: response.status };
+            }
+            
+            setCurrentRecipe(data); // Fixed
+            setRecipes(prev => prev.map(r => r.id === id ? data : r));
+            return { success: true, data };
+        } catch (error) {
+            setError(error.message);
+            return { success: false, error: error.message };
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const deleteRecipe = async (id) => {
+        if (!isAuthenticated) {
+            return { success: false, error: 'Unauthorized', statusCode: 401 };
+        }
+        setIsLoading(true); // Added
+        setError(null);
+        try {
+            const response = await fetch(`${API_URL}/recipes/${id}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders() // Fixed: was using separate token
+            });
+            
+            if (!response.ok) {
+                const data = await response.json();
+                return { success: false, error: data.error || 'Failed to delete recipe', statusCode: response.status };
+            }
+            
+            setRecipes(prev => prev.filter(recipe => recipe.id !== id));
+            return { success: true };
+        } catch (error) {
+            setError(error.message);
+            return { success: false, error: error.message };
+        } finally {
+            setIsLoading(false);
+        }
+    };
     
     const value = {
         recipes,
+        currentRecipe, // Added
         isLoading,
         error,
         getAllRecipes,
         getRecipeById,
         createRecipe,
         updateRecipe,
-        deleteRecipe
+        deleteRecipe,
+        setCurrentRecipe // Added for clearing
     };
     
     return (
@@ -133,5 +171,3 @@ export const RecipeProvider = ({ children }) => {
         </RecipeContext.Provider>
     );
 };
-    
-   

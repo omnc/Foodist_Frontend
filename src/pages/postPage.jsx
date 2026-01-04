@@ -81,7 +81,7 @@ function PostPage() {
         // Add basic recipe info
         formData.append('title', title);
         formData.append('description', description);
-        formData.append('mealType', mealType);
+        formData.append('mealtype', mealType);  // lowercase to match backend schema
         formData.append('servingSize', servingSize.toString());
         formData.append('level', level.toString());
         formData.append('prepTime', prepTime.toString());
