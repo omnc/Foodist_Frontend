@@ -50,7 +50,7 @@ export const RecipeProvider = ({ children }) => {
         }
         try {
             setIsLoading(true);
-            const response = await fetch('https://foodist-backend.onrender.com/recipes', {
+            const response = await fetch('https://foodist_backend.omnc2019.workers.dev/recipes', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${user.token}`
