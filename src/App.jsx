@@ -7,6 +7,7 @@ import LogInPage from './pages/logInPage.jsx';
 import SignInPage from './pages/signInPage.jsx';
 import MyPage from './pages/myPage.jsx';
 import PostPage from './pages/postPage.jsx';
+import PostPublishPage from './pages/postPublishPage.jsx';
 
 function App() {
     return (
@@ -19,6 +20,7 @@ function App() {
                         <Route path="/signin" element={<SignInPage />} />
                         <Route path="/myPage" element={<MyPage />} />
                         <Route path="/postPage" element={<PostPage />} />
+                        <Route path="/recipe/:id" element={<PostPublishPage />} />
                     </Routes>
                 </HashRouter>
             </RecipeProvider>

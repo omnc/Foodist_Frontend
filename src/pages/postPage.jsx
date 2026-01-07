@@ -113,7 +113,7 @@ function PostPage() {
         const result = await createRecipe(formData);
 
         if (result.success) {
-            navigate('/');
+            navigate(`/recipe/${result.data.id}`);
         } else {
             setError(result.error || 'Failed to create recipe');
         }
