@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/authContext';
 import { useRecipe } from '../contexts/recipeContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import Header from '../components/header';
+import '../design/myPage.css';
 
 function MyPage() {
     const { user, isAuthenticated } = useAuth();
@@ -26,26 +27,19 @@ function MyPage() {
     return (
         <div>
             <Header />
-            <div className="myRecipes" style={{ padding: '120px 40px 40px' }}>
+            <div className="myRecipes">
                 <h1>My Recipes</h1>
                 {isLoading ? (
                     <p>Loading recipes...</p>
                 ) : myRecipes.length === 0 ? (
                     <p>You haven't created any recipes yet.</p>
                 ) : (
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                    <ul className="recipe-list">
                         {myRecipes.map(recipe => (
                             <li 
                                 key={recipe.id} 
+                                className="recipe-item"
                                 onClick={() => navigate(`/recipe/${recipe.id}`)}
-                                style={{ 
-                                    padding: '16px', 
-                                    marginBottom: '12px', 
-                                    background: '#fff', 
-                                    borderRadius: '8px',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                    cursor: 'pointer'
-                                }}
                             >
                                 {recipe.title}
                             </li>

@@ -10,22 +10,7 @@ function PostPublishPage() {
     const { currentRecipe, getRecipeById, isLoading, error, recipes, getAllRecipes } = useRecipe();
     const [checkedIngredients, setCheckedIngredients] = useState({});
     const [comment, setComment] = useState('');
-    const [comments, setComments] = useState([
-        {
-            id: 1,
-            author: 'Name',
-            date: 'August 15, 2023',
-            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In auctor neque at sapien hendrerit vestibulum a turpis. Proelis leo risque ultricies a turpis tincidunt at vivus ultrices vel. Maecenas sed mollis magna. in feugiat augue sit.',
-            rating: 4.6
-        },
-        {
-            id: 2,
-            author: 'Name',
-            date: 'August 16, 2023',
-            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In auctor neque at sapien hendrerit vestibulum a turpis. Proelis leo risque ultricies a turpis tincidunt.',
-            rating: 4.8
-        }
-    ]);
+    const [comments, setComments] = useState([]);
 
     useEffect(() => {
         if (id) {
@@ -267,7 +252,7 @@ function PostPublishPage() {
 
                     {/* Comments Section */}
                     <section className="recipe-section comments-section">
-                        <h2>{comments.length} Comments</h2>
+                        <h2>{comments.length > 0 ? `${comments.length} Comments` : 'Comments'}</h2>
                         
                         {/* Comment Form */}
                         <div className="comment-form">
@@ -299,27 +284,29 @@ function PostPublishPage() {
                             </div>
                         </div>
 
-                        {/* Comments List */}
-                        <div className="comments-list">
-                            {comments.map(c => (
-                                <div key={c.id} className="comment-item">
-                                    <div className="comment-avatar">
-                                        <span>{c.author.charAt(0)}</span>
-                                    </div>
-                                    <div className="comment-body">
-                                        <div className="comment-header">
-                                            <span className="comment-author">{c.author}</span>
-                                            <span className="comment-date">{c.date}</span>
+                        {/* Comments List - only show when there are comments */}
+                        {comments.length > 0 && (
+                            <div className="comments-list">
+                                {comments.map(c => (
+                                    <div key={c.id} className="comment-item">
+                                        <div className="comment-avatar">
+                                            <span>{c.author.charAt(0)}</span>
                                         </div>
-                                        <p className="comment-text">{c.content}</p>
-                                        <div className="comment-rating">
-                                            {renderStars(c.rating)}
-                                            <span className="rating-value">{c.rating}</span>
+                                        <div className="comment-body">
+                                            <div className="comment-header">
+                                                <span className="comment-author">{c.author}</span>
+                                                <span className="comment-date">{c.date}</span>
+                                            </div>
+                                            <p className="comment-text">{c.content}</p>
+                                            <div className="comment-rating">
+                                                {renderStars(c.rating)}
+                                                <span className="rating-value">{c.rating}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </section>
                 </main>
 
