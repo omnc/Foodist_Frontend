@@ -46,14 +46,15 @@ function SignInPage() {
     <div>
       <h1>Sign In</h1>
       {error && (
-        <p role="alert" style={{ color: 'crimson' }}>
+        <p role="alert" data-testid="register-error" style={{ color: 'crimson' }}>
           {error}
         </p>
       )}
-      <form onSubmit={handleSignIn}>
+      <form onSubmit={handleSignIn} data-testid="register-form">
         <input
           type="email"
           id="email"
+          data-testid="register-email"
           autoComplete="email"
           onChange={(e) => setEmail(e.target.value)}
           value={email}
@@ -64,6 +65,7 @@ function SignInPage() {
         <input
           type="password"
           id="password"
+          data-testid="register-password"
           autoComplete="new-password"
           onChange={(e) => setPassword(e.target.value)}
           value={password}
@@ -74,6 +76,7 @@ function SignInPage() {
         <input
           type="password"
           id="confirmPassword"
+          data-testid="register-confirm"
           autoComplete="new-password"
           onChange={(e) => setConfirmPassword(e.target.value)}
           value={confirmPassword}
@@ -81,7 +84,7 @@ function SignInPage() {
           required
           disabled={submitting}
         />
-        <button type="submit" disabled={submitting}>
+        <button type="submit" data-testid="register-submit" disabled={submitting}>
           {submitting ? 'Registering…' : 'Register'}
         </button>
       </form>

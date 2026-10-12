@@ -159,6 +159,70 @@ export const RecipeProvider = ({ children }) => {
             setIsLoading(false);
         }
     };
+
+    const checkRecipeSaved = async (recipeId) => {
+        if (!isAuthenticated) {
+            return { success: true, isSaved: false };
+        }
+        try {
+            const response = await fetch(`${API_URL}/saved-recipes/check/${recipeId}`, {
+                headers: getAuthHeaders(),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                return { success: false, error: data.error || 'Failed to check saved state', isSaved: false };
+            }
+            return { success: true, isSaved: !!data.isSaved, savedRecipe: data.savedRecipe || null };
+        } catch (error) {
+            return { success: false, error: error.message, isSaved: false };
+        }
+    };
+
+    const saveRecipe = async (recipeId, note = null) => {
+        if (!isAuthenticated) {
+            return { success: false, error: 'Unauthorized', statusCode: 401 };
+        }
+        try {
+            const response = await fetch(`${API_URL}/saved-recipes/${recipeId}`, {
+                method: 'POST',
+                headers: {
+                    ...getAuthHeaders(),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ note }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                // Treat already-saved as success for duplicate-safe UX
+                if (response.status === 400 && /already saved/i.test(data.error || '')) {
+                    return { success: true, alreadySaved: true, data };
+                }
+                return { success: false, error: data.error || 'Failed to save recipe', statusCode: response.status };
+            }
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    };
+
+    const unsaveRecipe = async (recipeId) => {
+        if (!isAuthenticated) {
+            return { success: false, error: 'Unauthorized', statusCode: 401 };
+        }
+        try {
+            const response = await fetch(`${API_URL}/saved-recipes/${recipeId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders(),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                return { success: false, error: data.error || 'Failed to unsave recipe', statusCode: response.status };
+            }
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    };
     
     const value = {
         recipes,
@@ -170,6 +234,9 @@ export const RecipeProvider = ({ children }) => {
         createRecipe,
         updateRecipe,
         deleteRecipe,
+        checkRecipeSaved,
+        saveRecipe,
+        unsaveRecipe,
         setCurrentRecipe // Added for clearing
     };
     

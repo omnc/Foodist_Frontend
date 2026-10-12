@@ -10,12 +10,14 @@ SPA for [Foodist](https://foodist-frontend.pages.dev/) — React 19 + Vite + Rea
 - Search / meal-type filtering via `/search`
 - Recipe create form aligned to backend meal-type enum (no `SNACK`)
 - Recipe detail uses API `averageRating`, `authorName`/`user`, `titleImage`/`titleImageUrl`, ingredients, directions, and persisted comments
+- Recipe detail Save/Unsave against `/saved-recipes` (duplicate-safe)
+- Playwright E2E (mocked API — never hits production Workers/D1)
 
 ## Not finished yet
 
-- Save-recipe button on detail (API exists; UI still marked unavailable)
 - Share / print
-- Full accessibility audit and Playwright E2E in CI
+- Full accessibility audit
+- Live local-D1 E2E (optional; mocked suite covers UI regression)
 
 ## Setup
 
@@ -32,6 +34,9 @@ npm run dev
 | `npm run dev` | Vite dev server |
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Preview production build |
+| `npm run test:e2e` | Playwright auth/recipe/save regression (mocked API) |
+
+E2E installs Chromium via `npx playwright install chromium` on first use.
 
 ## Repo hygiene
 
