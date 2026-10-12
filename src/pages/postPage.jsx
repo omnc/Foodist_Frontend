@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext';
 import { useRecipe } from '../contexts/recipeContext';
+import { MEAL_TYPES } from '../config/api';
 import Header from '../components/header';
 import '../design/postPage.css';
 
@@ -186,11 +187,11 @@ function PostPage() {
                                     value={mealType}
                                     onChange={(e) => setMealType(e.target.value)}
                                 >
-                                    <option value="BREAKFAST">Breakfast</option>
-                                    <option value="LUNCH">Lunch</option>
-                                    <option value="DINNER">Dinner</option>
-                                    <option value="SNACK">Snack</option>
-                                    <option value="DESSERT">Dessert</option>
+                                    {MEAL_TYPES.map((mt) => (
+                                        <option key={mt.value} value={mt.value}>
+                                            {mt.label}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">

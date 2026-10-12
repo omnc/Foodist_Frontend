@@ -8,6 +8,8 @@ import SignInPage from './pages/signInPage.jsx';
 import MyPage from './pages/myPage.jsx';
 import PostPage from './pages/postPage.jsx';
 import PostPublishPage from './pages/postPublishPage.jsx';
+import SearchPage from './pages/searchPage.jsx';
+import SavedRecipesPage from './pages/savedRecipesPage.jsx';
 
 function App() {
     return (
@@ -21,6 +23,8 @@ function App() {
                         <Route path="/myPage" element={<MyPage />} />
                         <Route path="/postPage" element={<PostPage />} />
                         <Route path="/recipe/:id" element={<PostPublishPage />} />
+                        <Route path="/search" element={<SearchPage />} />
+                        <Route path="/saved" element={<SavedRecipesPage />} />
                     </Routes>
                 </HashRouter>
             </RecipeProvider>

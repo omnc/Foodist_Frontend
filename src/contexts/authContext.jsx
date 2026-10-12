@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_URL } from '../config/api';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -15,7 +16,6 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Check login status once when app loads
   useEffect(() => {
     checkAuth();
   }, []);
@@ -23,87 +23,102 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem('token');
-      const email = localStorage.getItem('userEmail');
-      
-      if (!token || !email) {
+
+      if (!token) {
         setIsLoading(false);
         return;
       }
 
-      // Verify token with server
-      const response = await fetch('https://foodist_backend.omnc2019.workers.dev/auth/me', {
+      const response = await fetch(`${API_URL}/auth/me`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
         const userData = await response.json();
-        setUser({ token, email, ...userData });
+        setUser({ token, ...userData });
+        if (userData.email) {
+          localStorage.setItem('userEmail', userData.email);
+        }
       } else {
-        // Token is invalid, clear storage
         localStorage.removeItem('token');
         localStorage.removeItem('userEmail');
+        setUser(null);
       }
-    } catch (error) {
-      console.error('Auth check failed:', error);
+    } catch (err) {
+      console.error('Auth check failed:', err);
       setError('Failed to verify login status');
     } finally {
       setIsLoading(false);
     }
   };
+
   const login = async (email, password) => {
     try {
-      const response = await fetch('https://foodist_backend.omnc2019.workers.dev/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
-      if (response.status === 404) {
-        return{ success: false, error: data.message || 'User not found', statuscode: 404 };
-      }else if(response.status === 401) {
-        return{ success: false, error: data.message || 'Invalid password', statuscode: 401 };
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || data.message || 'Login failed',
+          statuscode: response.status,
+        };
       }
 
-      // Store token and user data
       localStorage.setItem('token', data.token);
-      localStorage.setItem('userEmail', email);
-      
-      setUser({ token: data.token, email });
+      localStorage.setItem('userEmail', data.user?.email || email);
+
+      setUser({
+        token: data.token,
+        id: data.user?.id,
+        email: data.user?.email || email,
+        username: data.user?.username ?? null,
+        ...data.user,
+      });
       setError(null);
-      return { success: true };
-    } catch (error) {
-      setError(error.message);
-      return { success: false, error: error.message };
+      return { success: true, user: data.user };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
     }
   };
 
   const register = async (email, password) => {
     try {
-      const response = await fetch('https://foodist_backend.omnc2019.workers.dev/auth/register', {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
-      if(response.status === 400) {
-        return{ success: false, error: data.message || 'User already exists', statuscode: 400 };
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || data.message || 'Registration failed',
+          statuscode: response.status,
+        };
       }
 
+      // Ensure password hash never enters client state even if API regresses
+      const { password: _ignored, ...safeUser } = data || {};
       setError(null);
-      return { success: true };
-    } catch (error) {
-      setError(error.message);
-      return { success: false, error: error.message };
+      return { success: true, user: safeUser };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
     }
   };
 
@@ -121,12 +136,8 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

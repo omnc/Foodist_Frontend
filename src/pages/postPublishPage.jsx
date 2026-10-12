@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRecipe } from '../contexts/recipeContext';
+import { useAuth } from '../contexts/authContext';
+import { API_URL } from '../config/api';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Header from '../components/header';
 import '../design/postPublishPage.css';
@@ -10,7 +12,10 @@ function PostPublishPage() {
     const { currentRecipe, getRecipeById, isLoading, error, recipes, getAllRecipes } = useRecipe();
     const [checkedIngredients, setCheckedIngredients] = useState({});
     const [comment, setComment] = useState('');
-    const [comments, setComments] = useState([]);
+    const [commentRating, setCommentRating] = useState(5);
+    const [commentError, setCommentError] = useState('');
+    const [commentSubmitting, setCommentSubmitting] = useState(false);
+    const { user, isAuthenticated } = useAuth();
 
     useEffect(() => {
         if (id) {
@@ -26,17 +31,34 @@ function PostPublishPage() {
         }));
     };
 
-    const handleCommentSubmit = () => {
-        if (comment.trim()) {
-            const newComment = {
-                id: comments.length + 1,
-                author: 'You',
-                date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-                content: comment,
-                rating: 5.0
-            };
-            setComments([...comments, newComment]);
+    const handleCommentSubmit = async () => {
+        if (!comment.trim()) return;
+        if (!isAuthenticated) {
+            setCommentError('Please log in to comment');
+            return;
+        }
+        setCommentError('');
+        setCommentSubmitting(true);
+        try {
+            const response = await fetch(`${API_URL}/recipes/${id}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({ body: comment.trim(), rating: commentRating }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                setCommentError(data.error || 'Failed to post comment');
+                return;
+            }
             setComment('');
+            await getRecipeById(id);
+        } catch (err) {
+            setCommentError(err.message || 'Failed to post comment');
+        } finally {
+            setCommentSubmitting(false);
         }
     };
 
@@ -50,10 +72,14 @@ function PostPublishPage() {
         return mealType.charAt(0) + mealType.slice(1).toLowerCase();
     };
 
-    const renderStars = (rating = 4.6) => {
+    const renderStars = (rating) => {
+        if (rating === null || rating === undefined || Number.isNaN(Number(rating))) {
+            return <span className="rating-empty">No ratings yet</span>;
+        }
+        const numeric = Number(rating);
         const stars = [];
-        const fullStars = Math.floor(rating);
-        const hasHalf = rating % 1 >= 0.5;
+        const fullStars = Math.floor(numeric);
+        const hasHalf = numeric % 1 >= 0.5;
         
         for (let i = 0; i < 5; i++) {
             if (i < fullStars) {
@@ -129,35 +155,42 @@ function PostPublishPage() {
                         <h1 className="recipe-title">{currentRecipe.title}</h1>
                         <div className="recipe-meta">
                             <div className="rating">
-                                {renderStars(4.6)}
-                                <span className="rating-value">4.6</span>
+                                {renderStars(currentRecipe.averageRating)}
+                                {currentRecipe.averageRating != null && (
+                                    <span className="rating-value">{currentRecipe.averageRating}</span>
+                                )}
+                                {currentRecipe.totalComments != null && (
+                                    <span className="rating-count">({currentRecipe.totalComments})</span>
+                                )}
                             </div>
                             <span className="meta-separator">•</span>
-                            <span className="author">by {currentRecipe.authorName || 'Anonymous'}</span>
+                            <span className="author">
+                                by {currentRecipe.authorName || currentRecipe.user?.username || currentRecipe.user?.email || 'Unknown author'}
+                            </span>
                             <span className="meta-separator">•</span>
                             <span className="date">{new Date(currentRecipe.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                         </div>
                         <p className="recipe-description">{currentRecipe.description}</p>
                         
-                        {/* Action Buttons */}
+                        {/* Action Buttons — share/print not implemented yet */}
                         <div className="action-buttons">
-                            <button className="action-btn">
-                                <span className="action-icon">↗</span> Share
+                            <button type="button" className="action-btn" disabled title="Share is not available yet">
+                                <span className="action-icon">↗</span> Share (unavailable)
                             </button>
-                            <button className="action-btn">
-                                <span className="action-icon">🖨</span> Print
+                            <button type="button" className="action-btn" disabled title="Print is not available yet">
+                                <span className="action-icon">🖨</span> Print (unavailable)
                             </button>
-                            <button className="action-btn save-btn">
-                                <span className="action-icon">♡</span> Save
+                            <button type="button" className="action-btn save-btn" disabled title="Wire save flow in a follow-up">
+                                <span className="action-icon">♡</span> Save (coming soon)
                             </button>
                         </div>
                     </div>
 
-                    {/* Title Image */}
-                    {currentRecipe.titleImageUrl && (
+                    {/* Title Image — accept both contract aliases */}
+                    {(currentRecipe.titleImageUrl || currentRecipe.titleImage) && (
                         <div className="title-image-container">
                             <img 
-                                src={currentRecipe.titleImageUrl} 
+                                src={currentRecipe.titleImageUrl || currentRecipe.titleImage} 
                                 alt={currentRecipe.title}
                                 className="title-image"
                             />
@@ -206,7 +239,9 @@ function PostPublishPage() {
                                             className="ingredient-checkbox"
                                         />
                                         <span className="ingredient-text">
-                                            {ingredient.amount} {ingredient.unit} {ingredient.name}
+                                            {[ingredient.amount || ingredient.measurement, ingredient.unit, ingredient.name || ingredient.value]
+                                                .filter(Boolean)
+                                                .join(' ')}
                                         </span>
                                     </div>
                                 ))}
@@ -222,9 +257,9 @@ function PostPublishPage() {
                         {currentRecipe.descriptionBlocks && currentRecipe.descriptionBlocks.length > 0 ? (
                             <div className="directions-list">
                                 {currentRecipe.descriptionBlocks.map((block, index) => (
-                                    <div key={index} className="direction-step">
+                                    <div key={block.id || index} className="direction-step">
                                         <h3 className="step-title">Step {block.step || index + 1}</h3>
-                                        <p className="step-content">{block.content}</p>
+                                        <p className="step-content">{block.content || block.description}</p>
                                         {block.imageUrl && (
                                             <div className="step-image-container">
                                                 <img 
@@ -250,61 +285,79 @@ function PostPublishPage() {
                         </section>
                     )}
 
-                    {/* Comments Section */}
+                    {/* Comments Section — persisted via API */}
                     <section className="recipe-section comments-section">
-                        <h2>{comments.length > 0 ? `${comments.length} Comments` : 'Comments'}</h2>
+                        <h2>
+                            {(currentRecipe.comments?.length || 0) > 0
+                                ? `${currentRecipe.comments.length} Comments`
+                                : 'Comments'}
+                        </h2>
                         
-                        {/* Comment Form */}
                         <div className="comment-form">
                             <div className="comment-avatar">
-                                <span>N</span>
+                                <span>{(user?.username || user?.email || '?').charAt(0).toUpperCase()}</span>
                             </div>
                             <div className="comment-input-wrapper">
-                                <span className="comment-label">Name</span>
-                                <span className="comment-date">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                <span className="comment-label">{isAuthenticated ? (user?.email || 'You') : 'Guest'}</span>
+                                {commentError && <p role="alert" className="comment-error">{commentError}</p>}
                                 <textarea 
                                     className="comment-input"
-                                    placeholder="Leave a comment for this recipe"
+                                    placeholder={isAuthenticated ? 'Leave a comment for this recipe' : 'Log in to leave a comment'}
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
+                                    disabled={!isAuthenticated || commentSubmitting}
                                 />
                                 <div className="comment-actions">
-                                    <div className="rating-input">
+                                    <div className="rating-input" aria-label="Rating">
                                         {[1, 2, 3, 4, 5].map(star => (
-                                            <span key={star} className="star-input">☆</span>
+                                            <button
+                                                type="button"
+                                                key={star}
+                                                className="star-input"
+                                                aria-label={`${star} stars`}
+                                                onClick={() => setCommentRating(star)}
+                                                disabled={!isAuthenticated || commentSubmitting}
+                                            >
+                                                {star <= commentRating ? '★' : '☆'}
+                                            </button>
                                         ))}
                                     </div>
                                     <button 
                                         className="submit-comment-btn"
                                         onClick={handleCommentSubmit}
+                                        disabled={!isAuthenticated || commentSubmitting}
                                     >
-                                        Submit
+                                        {commentSubmitting ? 'Submitting…' : 'Submit'}
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Comments List - only show when there are comments */}
-                        {comments.length > 0 && (
+                        {(currentRecipe.comments?.length || 0) > 0 && (
                             <div className="comments-list">
-                                {comments.map(c => (
-                                    <div key={c.id} className="comment-item">
-                                        <div className="comment-avatar">
-                                            <span>{c.author.charAt(0)}</span>
-                                        </div>
-                                        <div className="comment-body">
-                                            <div className="comment-header">
-                                                <span className="comment-author">{c.author}</span>
-                                                <span className="comment-date">{c.date}</span>
+                                {currentRecipe.comments.map(c => {
+                                    const author = c.user?.username || c.user?.email || 'User';
+                                    return (
+                                        <div key={c.id} className="comment-item">
+                                            <div className="comment-avatar">
+                                                <span>{author.charAt(0).toUpperCase()}</span>
                                             </div>
-                                            <p className="comment-text">{c.content}</p>
-                                            <div className="comment-rating">
-                                                {renderStars(c.rating)}
-                                                <span className="rating-value">{c.rating}</span>
+                                            <div className="comment-body">
+                                                <div className="comment-header">
+                                                    <span className="comment-author">{author}</span>
+                                                    <span className="comment-date">
+                                                        {new Date(c.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                                    </span>
+                                                </div>
+                                                <p className="comment-text">{c.body}</p>
+                                                <div className="comment-rating">
+                                                    {renderStars(c.rating)}
+                                                    <span className="rating-value">{c.rating}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </section>
