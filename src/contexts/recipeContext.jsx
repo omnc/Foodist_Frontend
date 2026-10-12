@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from './authContext';
+import { API_URL } from '../config/api';
 
 const RecipeContext = createContext();
 
@@ -10,8 +11,6 @@ export const useRecipe = () => {
     }
     return context;
 };
-
-const API_URL = 'https://foodist_backend.omnc2019.workers.dev';
 
 export const RecipeProvider = ({ children }) => {
     const [recipes, setRecipes] = useState([]);
@@ -26,11 +25,20 @@ export const RecipeProvider = ({ children }) => {
         return { 'Authorization': `Bearer ${user.token}` };
     };
 
-    const getAllRecipes = async () => {
-        setIsLoading(true); // Added
+    const getAllRecipes = async (params = {}) => {
+        setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/recipes`);
+            const query = new URLSearchParams();
+            if (params.q) query.set('q', params.q);
+            if (params.mealtype) query.set('mealtype', params.mealtype);
+            if (params.limit) query.set('limit', String(params.limit));
+
+            const path = params.q || params.mealtype
+                ? `${API_URL}/recipes/search?${query.toString()}`
+                : `${API_URL}/recipes${query.toString() ? `?${query}` : ''}`;
+
+            const response = await fetch(path);
             if (!response.ok) {
                 throw new Error('Failed to fetch recipes');
             }
