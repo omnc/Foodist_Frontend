@@ -35,14 +35,15 @@ function LogInPage() {
     <div>
       <h1>Log In</h1>
       {error && (
-        <p role="alert" style={{ color: 'crimson' }}>
+        <p role="alert" data-testid="login-error" style={{ color: 'crimson' }}>
           {error}
         </p>
       )}
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleLogin} data-testid="login-form">
         <input
           type="email"
           id="email"
+          data-testid="login-email"
           autoComplete="email"
           onChange={(e) => setEmail(e.target.value)}
           value={email}
@@ -53,6 +54,7 @@ function LogInPage() {
         <input
           type="password"
           id="password"
+          data-testid="login-password"
           autoComplete="current-password"
           onChange={(e) => setPassword(e.target.value)}
           value={password}
@@ -60,7 +62,7 @@ function LogInPage() {
           required
           disabled={submitting}
         />
-        <button type="submit" disabled={submitting}>
+        <button type="submit" data-testid="login-submit" disabled={submitting}>
           {submitting ? 'Logging in…' : 'Log In'}
         </button>
       </form>

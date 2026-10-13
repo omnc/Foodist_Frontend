@@ -9,12 +9,25 @@ import '../design/postPublishPage.css';
 function PostPublishPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { currentRecipe, getRecipeById, isLoading, error, recipes, getAllRecipes } = useRecipe();
+    const {
+        currentRecipe,
+        getRecipeById,
+        isLoading,
+        error,
+        recipes,
+        getAllRecipes,
+        checkRecipeSaved,
+        saveRecipe,
+        unsaveRecipe,
+    } = useRecipe();
     const [checkedIngredients, setCheckedIngredients] = useState({});
     const [comment, setComment] = useState('');
     const [commentRating, setCommentRating] = useState(5);
     const [commentError, setCommentError] = useState('');
     const [commentSubmitting, setCommentSubmitting] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+    const [saveLoading, setSaveLoading] = useState(false);
+    const [saveError, setSaveError] = useState('');
     const { user, isAuthenticated } = useAuth();
 
     useEffect(() => {
@@ -23,6 +36,53 @@ function PostPublishPage() {
         }
         getAllRecipes();
     }, [id]);
+
+    useEffect(() => {
+        let cancelled = false;
+        const loadSavedState = async () => {
+            if (!id || !isAuthenticated) {
+                setIsSaved(false);
+                return;
+            }
+            const result = await checkRecipeSaved(id);
+            if (!cancelled && result.success) {
+                setIsSaved(!!result.isSaved);
+            }
+        };
+        loadSavedState();
+        return () => {
+            cancelled = true;
+        };
+    }, [id, isAuthenticated, user?.token]);
+
+    const handleSaveToggle = async () => {
+        if (!isAuthenticated) {
+            navigate('/login');
+            return;
+        }
+        if (saveLoading) return;
+        setSaveError('');
+        setSaveLoading(true);
+        try {
+            if (isSaved) {
+                const result = await unsaveRecipe(id);
+                if (!result.success) {
+                    setSaveError(result.error || 'Failed to unsave');
+                    return;
+                }
+                setIsSaved(false);
+            } else {
+                const result = await saveRecipe(id);
+                if (!result.success) {
+                    setSaveError(result.error || 'Failed to save');
+                    return;
+                }
+                setIsSaved(true);
+            }
+        } finally {
+            setSaveLoading(false);
+        }
+    };
 
     const toggleIngredient = (index) => {
         setCheckedIngredients(prev => ({
@@ -152,7 +212,7 @@ function PostPublishPage() {
 
                     {/* Recipe Header */}
                     <div className="recipe-header">
-                        <h1 className="recipe-title">{currentRecipe.title}</h1>
+                        <h1 className="recipe-title" data-testid="recipe-title">{currentRecipe.title}</h1>
                         <div className="recipe-meta">
                             <div className="rating">
                                 {renderStars(currentRecipe.averageRating)}
@@ -180,10 +240,24 @@ function PostPublishPage() {
                             <button type="button" className="action-btn" disabled title="Print is not available yet">
                                 <span className="action-icon">🖨</span> Print (unavailable)
                             </button>
-                            <button type="button" className="action-btn save-btn" disabled title="Wire save flow in a follow-up">
-                                <span className="action-icon">♡</span> Save (coming soon)
+                            <button
+                                type="button"
+                                className={`action-btn save-btn ${isSaved ? 'saved' : ''}`}
+                                onClick={handleSaveToggle}
+                                disabled={saveLoading}
+                                data-testid="save-recipe-btn"
+                                aria-pressed={isSaved}
+                                title={isAuthenticated ? (isSaved ? 'Remove from saved recipes' : 'Save this recipe') : 'Log in to save'}
+                            >
+                                <span className="action-icon">{isSaved ? '♥' : '♡'}</span>
+                                {saveLoading ? 'Saving…' : isSaved ? 'Saved' : 'Save'}
                             </button>
                         </div>
+                        {saveError && (
+                            <p role="alert" data-testid="save-error" style={{ color: 'crimson' }}>
+                                {saveError}
+                            </p>
+                        )}
                     </div>
 
                     {/* Title Image — accept both contract aliases */}
@@ -225,12 +299,13 @@ function PostPublishPage() {
                     <section className="recipe-section">
                         <h2>Ingredients</h2>
                         {currentRecipe.ingredients && currentRecipe.ingredients.length > 0 ? (
-                            <div className="ingredients-list">
+                            <div className="ingredients-list" data-testid="recipe-ingredients">
                                 {currentRecipe.ingredients.map((ingredient, index) => (
                                     <div 
                                         key={index} 
                                         className={`ingredient-row ${checkedIngredients[index] ? 'checked' : ''}`}
                                         onClick={() => toggleIngredient(index)}
+                                        data-testid={`recipe-ingredient-${index}`}
                                     >
                                         <input 
                                             type="checkbox" 
@@ -255,9 +330,9 @@ function PostPublishPage() {
                     <section className="recipe-section">
                         <h2>Directions</h2>
                         {currentRecipe.descriptionBlocks && currentRecipe.descriptionBlocks.length > 0 ? (
-                            <div className="directions-list">
+                            <div className="directions-list" data-testid="recipe-directions">
                                 {currentRecipe.descriptionBlocks.map((block, index) => (
-                                    <div key={block.id || index} className="direction-step">
+                                    <div key={block.id || index} className="direction-step" data-testid={`recipe-step-${index}`}>
                                         <h3 className="step-title">Step {block.step || index + 1}</h3>
                                         <p className="step-content">{block.content || block.description}</p>
                                         {block.imageUrl && (

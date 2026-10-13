@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext';
 import { useRecipe } from '../contexts/recipeContext';
@@ -7,7 +7,7 @@ import Header from '../components/header';
 import '../design/postPage.css';
 
 function PostPage() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
     const { createRecipe, isLoading: recipeLoading } = useRecipe();
     const navigate = useNavigate();
     
@@ -28,8 +28,22 @@ function PostPage() {
     
     const [error, setError] = useState('');
 
+    useEffect(() => {
+        if (!authLoading && !isAuthenticated) {
+            navigate('/login');
+        }
+    }, [authLoading, isAuthenticated, navigate]);
+
+    if (authLoading) {
+        return (
+            <div className="post-page">
+                <Header />
+                <p data-testid="post-auth-loading">Loading…</p>
+            </div>
+        );
+    }
+
     if (!isAuthenticated) {
-        navigate('/login');
         return null;
     }
 
@@ -129,9 +143,9 @@ function PostPage() {
                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ex sem libero laoreet ante sit.</p>
                 </div>
                 
-                {error && <div className="error-message">{error}</div>}
+                {error && <div className="error-message" data-testid="post-error">{error}</div>}
                 
-                <form onSubmit={handleSubmit} className="post-form">
+                <form onSubmit={handleSubmit} className="post-form" data-testid="post-form">
                     {/* Title and Description */}
                     <div className="form-section">
                         <div className="form-row">
@@ -139,7 +153,8 @@ function PostPage() {
                                 <div className="form-group">
                                     <label>Title</label>
                                     <input 
-                                        type="text" 
+                                        type="text"
+                                        data-testid="post-title"
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
                                         placeholder="What's your recipe title?" 
@@ -149,6 +164,7 @@ function PostPage() {
                                 <div className="form-group">
                                     <label>Description</label>
                                     <textarea 
+                                        data-testid="post-description"
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                         placeholder="Write description of your recipe"
@@ -268,21 +284,24 @@ function PostPage() {
                         {ingredients.map((ingredient, index) => (
                             <div key={index} className="ingredient-item">
                                 <input 
-                                    type="text" 
+                                    type="text"
+                                    data-testid={`ingredient-name-${index}`}
                                     value={ingredient.name}
                                     onChange={(e) => updateIngredient(index, 'name', e.target.value)}
                                     placeholder="e.g. fresh tomato"
                                     required
                                 />
                                 <input 
-                                    type="text" 
+                                    type="text"
+                                    data-testid={`ingredient-amount-${index}`}
                                     value={ingredient.amount}
                                     onChange={(e) => updateIngredient(index, 'amount', e.target.value)}
                                     placeholder="e.g. 2"
                                     required
                                 />
                                 <input 
-                                    type="text" 
+                                    type="text"
+                                    data-testid={`ingredient-unit-${index}`}
                                     value={ingredient.unit}
                                     onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
                                     placeholder="e.g. cups"
@@ -322,7 +341,8 @@ function PostPage() {
                                     </button>
                                 </div>
                                 <div className="step-content">
-                                    <textarea 
+                                    <textarea
+                                        data-testid={`step-content-${index}`}
                                         value={block.content}
                                         onChange={(e) => updateStep(index, e.target.value)}
                                         placeholder="Write description of your recipe"
@@ -380,7 +400,8 @@ function PostPage() {
                             Cancel
                         </button>
                         <button 
-                            type="submit" 
+                            type="submit"
+                            data-testid="post-submit"
                             disabled={recipeLoading}
                             className="btn btn-submit"
                         >
