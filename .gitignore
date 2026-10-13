@@ -27,3 +27,9 @@ pnpm-debug.log*
 
 # vitest / coverage
 coverage/
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
