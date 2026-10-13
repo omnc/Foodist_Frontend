@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from './authContext';
-import { API_URL } from '../config/api';
+import { apiFetch, authHeaders } from '../lib/apiClient';
 
 const RecipeContext = createContext();
 
@@ -19,12 +19,6 @@ export const RecipeProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const { user, isAuthenticated } = useAuth();
 
-    // Helper to get auth headers
-    const getAuthHeaders = () => {
-        if (!user?.token) return {};
-        return { 'Authorization': `Bearer ${user.token}` };
-    };
-
     const getAllRecipes = async (params = {}) => {
         setIsLoading(true);
         setError(null);
@@ -35,10 +29,10 @@ export const RecipeProvider = ({ children }) => {
             if (params.limit) query.set('limit', String(params.limit));
 
             const path = params.q || params.mealtype
-                ? `${API_URL}/recipes/search?${query.toString()}`
-                : `${API_URL}/recipes${query.toString() ? `?${query}` : ''}`;
+                ? `/recipes/search?${query.toString()}`
+                : `/recipes${query.toString() ? `?${query}` : ''}`;
 
-            const response = await fetch(path);
+            const response = await apiFetch(path);
             if (!response.ok) {
                 throw new Error('Failed to fetch recipes');
             }
@@ -57,7 +51,7 @@ export const RecipeProvider = ({ children }) => {
         setIsLoading(true); // Added
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/recipes/${id}`);
+            const response = await apiFetch(`/recipes/${id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch recipe');
             }
@@ -79,9 +73,9 @@ export const RecipeProvider = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/recipes`, {
+            const response = await apiFetch('/recipes', {
                 method: 'POST',
-                headers: getAuthHeaders(),
+                headers: authHeaders({ token: user?.token, mutating: true }),
                 // Don't set Content-Type - browser handles it for FormData
                 body: formData
             });
@@ -110,9 +104,9 @@ export const RecipeProvider = ({ children }) => {
         setIsLoading(true); // Added
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/recipes/${id}`, {
+            const response = await apiFetch(`/recipes/${id}`, {
                 method: 'PUT',
-                headers: getAuthHeaders(), // Added auth
+                headers: authHeaders({ token: user?.token, mutating: true }),
                 body: formData // Changed to formData (backend expects FormData)
             });
             
@@ -140,9 +134,9 @@ export const RecipeProvider = ({ children }) => {
         setIsLoading(true); // Added
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/recipes/${id}`, {
+            const response = await apiFetch(`/recipes/${id}`, {
                 method: 'DELETE',
-                headers: getAuthHeaders() // Fixed: was using separate token
+                headers: authHeaders({ token: user?.token, mutating: true }),
             });
             
             if (!response.ok) {
@@ -165,8 +159,8 @@ export const RecipeProvider = ({ children }) => {
             return { success: true, isSaved: false };
         }
         try {
-            const response = await fetch(`${API_URL}/saved-recipes/check/${recipeId}`, {
-                headers: getAuthHeaders(),
+            const response = await apiFetch(`/saved-recipes/check/${recipeId}`, {
+                headers: authHeaders({ token: user?.token }),
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
@@ -183,12 +177,9 @@ export const RecipeProvider = ({ children }) => {
             return { success: false, error: 'Unauthorized', statusCode: 401 };
         }
         try {
-            const response = await fetch(`${API_URL}/saved-recipes/${recipeId}`, {
+            const response = await apiFetch(`/saved-recipes/${recipeId}`, {
                 method: 'POST',
-                headers: {
-                    ...getAuthHeaders(),
-                    'Content-Type': 'application/json',
-                },
+                headers: authHeaders({ token: user?.token, json: true, mutating: true }),
                 body: JSON.stringify({ note }),
             });
             const data = await response.json().catch(() => ({}));
@@ -210,9 +201,9 @@ export const RecipeProvider = ({ children }) => {
             return { success: false, error: 'Unauthorized', statusCode: 401 };
         }
         try {
-            const response = await fetch(`${API_URL}/saved-recipes/${recipeId}`, {
+            const response = await apiFetch(`/saved-recipes/${recipeId}`, {
                 method: 'DELETE',
-                headers: getAuthHeaders(),
+                headers: authHeaders({ token: user?.token, mutating: true }),
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
