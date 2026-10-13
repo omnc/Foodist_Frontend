@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRecipe } from '../contexts/recipeContext';
 import { useAuth } from '../contexts/authContext';
-import { API_URL } from '../config/api';
+import { apiFetch, authHeaders } from '../lib/apiClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Header from '../components/header';
 import '../design/postPublishPage.css';
@@ -28,6 +28,7 @@ function PostPublishPage() {
     const [isSaved, setIsSaved] = useState(false);
     const [saveLoading, setSaveLoading] = useState(false);
     const [saveError, setSaveError] = useState('');
+    const [shareMessage, setShareMessage] = useState('');
     const { user, isAuthenticated } = useAuth();
 
     useEffect(() => {
@@ -84,6 +85,32 @@ function PostPublishPage() {
         }
     };
 
+    const handleShare = async () => {
+        setShareMessage('');
+        const shareUrl = window.location.href;
+        const shareData = {
+            title: currentRecipe?.title || 'Foodist recipe',
+            text: currentRecipe?.description || 'Check out this recipe on Foodist',
+            url: shareUrl,
+        };
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+                setShareMessage('Shared');
+                return;
+            }
+            await navigator.clipboard.writeText(shareUrl);
+            setShareMessage('Link copied to clipboard');
+        } catch (err) {
+            if (err?.name === 'AbortError') return;
+            setShareMessage('Unable to share — copy the URL from the address bar');
+        }
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
+
     const toggleIngredient = (index) => {
         setCheckedIngredients(prev => ({
             ...prev,
@@ -100,12 +127,9 @@ function PostPublishPage() {
         setCommentError('');
         setCommentSubmitting(true);
         try {
-            const response = await fetch(`${API_URL}/recipes/${id}/comments`, {
+            const response = await apiFetch(`/recipes/${id}/comments`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`,
-                },
+                headers: authHeaders({ token: user?.token, json: true, mutating: true }),
                 body: JSON.stringify({ body: comment.trim(), rating: commentRating }),
             });
             const data = await response.json().catch(() => ({}));
@@ -188,19 +212,19 @@ function PostPublishPage() {
             <Header />
             
             {/* Navigation Menu */}
-            <nav className="publish-nav">
+            <nav className="publish-nav" aria-label="Recipe sections">
                 <ul className="nav-menu">
-                    <li><Link to="/">Meals</Link></li>
-                    <li><Link to="/">Ingredients</Link></li>
-                    <li><Link to="/">Cuisines</Link></li>
-                    <li><Link to="/">Desserts</Link></li>
-                    <li><Link to="/">Cooking Tips</Link></li>
+                    <li><Link to="/search?mealtype=BREAKFAST">Meals</Link></li>
+                    <li><Link to="/search">Ingredients</Link></li>
+                    <li><Link to="/search">Cuisines</Link></li>
+                    <li><Link to="/search?mealtype=DESSERT">Desserts</Link></li>
+                    <li><Link to="/search">Cooking Tips</Link></li>
                     <li><Link to="/">About us</Link></li>
                 </ul>
             </nav>
 
             <div className="publish-container">
-                <main className="publish-main">
+                <main id="main-content" tabIndex={-1} className="publish-main">
                     {/* Breadcrumb */}
                     <div className="breadcrumb">
                         <Link to="/">Home</Link>
@@ -232,13 +256,22 @@ function PostPublishPage() {
                         </div>
                         <p className="recipe-description">{currentRecipe.description}</p>
                         
-                        {/* Action Buttons — share/print not implemented yet */}
                         <div className="action-buttons">
-                            <button type="button" className="action-btn" disabled title="Share is not available yet">
-                                <span className="action-icon">↗</span> Share (unavailable)
+                            <button
+                                type="button"
+                                className="action-btn"
+                                onClick={handleShare}
+                                data-testid="share-recipe-btn"
+                            >
+                                <span className="action-icon" aria-hidden="true">↗</span> Share
                             </button>
-                            <button type="button" className="action-btn" disabled title="Print is not available yet">
-                                <span className="action-icon">🖨</span> Print (unavailable)
+                            <button
+                                type="button"
+                                className="action-btn"
+                                onClick={handlePrint}
+                                data-testid="print-recipe-btn"
+                            >
+                                <span className="action-icon" aria-hidden="true">🖨</span> Print
                             </button>
                             <button
                                 type="button"
@@ -256,6 +289,11 @@ function PostPublishPage() {
                         {saveError && (
                             <p role="alert" data-testid="save-error" style={{ color: 'crimson' }}>
                                 {saveError}
+                            </p>
+                        )}
+                        {shareMessage && (
+                            <p role="status" data-testid="share-status" aria-live="polite">
+                                {shareMessage}
                             </p>
                         )}
                     </div>

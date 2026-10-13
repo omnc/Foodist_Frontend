@@ -65,14 +65,21 @@ export async function installMockApi(page) {
         return route.fulfill(json({ error: 'Invalid email or password' }, 401));
       }
       const t = `tok-${user.id}-${Date.now()}`;
+      const csrf = `csrf-${user.id}-${Date.now()}`;
       state.tokens.set(t, user.id);
       return route.fulfill(
         json({
           message: 'Login successful',
           token: t,
+          csrfToken: csrf,
+          authMode: 'cookie+bearer',
           user: publicUser(user),
         })
       );
+    }
+
+    if (method === 'POST' && path === '/auth/logout') {
+      return route.fulfill(json({ message: 'Logged out' }));
     }
 
     if (method === 'GET' && path === '/auth/me') {

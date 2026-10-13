@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { API_URL } from '../config/api';
+import { apiFetch, authHeaders, setStoredCsrf } from '../lib/apiClient';
 
 const AuthContext = createContext(null);
 
@@ -23,27 +23,22 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem('token');
-
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
-      const response = await fetch(`${API_URL}/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      // Prefer Bearer when present; cookie session still sent via credentials
+      const response = await apiFetch('/auth/me', {
+        headers: authHeaders({ token }),
       });
 
       if (response.ok) {
         const userData = await response.json();
-        setUser({ token, ...userData });
+        setUser({ token: token || null, ...userData });
         if (userData.email) {
           localStorage.setItem('userEmail', userData.email);
         }
-      } else {
+      } else if (token) {
         localStorage.removeItem('token');
         localStorage.removeItem('userEmail');
+        setUser(null);
+      } else {
         setUser(null);
       }
     } catch (err) {
@@ -56,11 +51,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await apiFetch('/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: authHeaders({ json: true }),
         body: JSON.stringify({ email, password }),
       });
 
@@ -74,11 +67,13 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      localStorage.setItem('token', data.token);
+      if (data.token) localStorage.setItem('token', data.token);
+      if (data.csrfToken) setStoredCsrf(data.csrfToken);
       localStorage.setItem('userEmail', data.user?.email || email);
 
       setUser({
         token: data.token,
+        csrfToken: data.csrfToken,
         id: data.user?.id,
         email: data.user?.email || email,
         username: data.user?.username ?? null,
@@ -94,11 +89,9 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password) => {
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await apiFetch('/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: authHeaders({ json: true }),
         body: JSON.stringify({ email, password }),
       });
 
@@ -112,7 +105,6 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      // Ensure password hash never enters client state even if API regresses
       const { password: _ignored, ...safeUser } = data || {};
       setError(null);
       return { success: true, user: safeUser };
@@ -122,9 +114,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await apiFetch('/auth/logout', { method: 'POST' });
+    } catch {
+      // ignore network errors on logout
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('userEmail');
+    setStoredCsrf('');
     setUser(null);
     setError(null);
   };

@@ -32,7 +32,7 @@ function LogInPage() {
   };
 
   return (
-    <div>
+    <main id="main-content" tabIndex={-1}>
       <h1>Log In</h1>
       {error && (
         <p role="alert" data-testid="login-error" style={{ color: 'crimson' }}>
@@ -40,6 +40,7 @@ function LogInPage() {
         </p>
       )}
       <form onSubmit={handleLogin} data-testid="login-form">
+        <label htmlFor="email">Email</label>
         <input
           type="email"
           id="email"
@@ -51,6 +52,7 @@ function LogInPage() {
           required
           disabled={submitting}
         />
+        <label htmlFor="password">Password</label>
         <input
           type="password"
           id="password"
@@ -71,7 +73,7 @@ function LogInPage() {
           Don't have an account? Sign In
         </button>
       </div>
-    </div>
+    </main>
   );
 }
 

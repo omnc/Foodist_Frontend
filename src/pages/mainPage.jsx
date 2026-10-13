@@ -17,7 +17,7 @@ function MainPage() {
       <Header />
       <CategoryDropdown />
       <Carousel />
-      <section style={{ maxWidth: 960, margin: '1.5rem auto', padding: '0 1rem' }}>
+      <main id="main-content" tabIndex={-1} style={{ maxWidth: 960, margin: '1.5rem auto', padding: '0 1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <h2>Recent recipes</h2>
           <Link to="/search">Search all</Link>
@@ -52,7 +52,7 @@ function MainPage() {
             </li>
           ))}
         </ul>
-      </section>
+      </main>
     </div>
   );
 }
