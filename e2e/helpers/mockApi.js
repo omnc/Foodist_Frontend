@@ -154,6 +154,7 @@ export async function installMockApi(page) {
       let mealtype = 'BREAKFAST';
       let ingredients = [];
       let descriptionBlocks = [];
+      let ingredientGroups = null;
 
       const contentType = req.headers()['content-type'] || '';
       if (contentType.includes('multipart/form-data')) {
@@ -174,12 +175,27 @@ export async function installMockApi(page) {
           ingredients = [];
         }
         try {
+          ingredientGroups = JSON.parse(grab('ingredientGroups') || 'null');
+        } catch {
+          ingredientGroups = null;
+        }
+        try {
           descriptionBlocks = JSON.parse(grab('descriptionBlocks') || '[]');
         } catch {
           descriptionBlocks = [];
         }
       }
 
+      if (Array.isArray(ingredientGroups) && ingredientGroups.some((g) => !String(g.heading || '').trim())) {
+        return route.fulfill(json({ error: 'Every ingredient group needs a heading' }, 400));
+      }
+      const toItem = (ing, i) => ({
+        id: i + 1,
+        name: ing.name || ing.value,
+        amount: [ing.amount, ing.unit].filter(Boolean).join(' '),
+        value: ing.name || ing.value,
+        measurement: [ing.amount, ing.unit].filter(Boolean).join(' '),
+      });
       const user = state.users.find((u) => u.id === authedUserId);
       const recipe = {
         id: state.nextRecipeId++,
@@ -202,6 +218,9 @@ export async function installMockApi(page) {
           value: ing.name || ing.value,
           measurement: [ing.amount, ing.unit].filter(Boolean).join(' '),
         })),
+        ingredientGroups: Array.isArray(ingredientGroups)
+          ? ingredientGroups.map((g) => ({ heading: g.heading.trim(), items: g.items.map(toItem) }))
+          : undefined,
         descriptionBlocks: descriptionBlocks.map((b, i) => ({
           id: i + 1,
           description: b.content || b.description || '',

@@ -855,3 +855,13 @@
     }
 }
 
+
+.ingredient-group-view + .ingredient-group-view {
+    margin-top: 16px;
+}
+
+.ingredient-group-heading {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 8px;
+}

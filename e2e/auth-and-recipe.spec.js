@@ -61,9 +61,10 @@ test.describe('Auth + recipe create/persist + save (mocked API)', () => {
     await expect(page.getByTestId('post-form')).toBeVisible({ timeout: 15_000 });
     await page.getByTestId('post-title').fill(title);
     await page.getByTestId('post-description').fill('A mocked E2E recipe');
-    await page.getByTestId('ingredient-name-0').fill('Tomato');
-    await page.getByTestId('ingredient-amount-0').fill('2');
-    await page.getByTestId('ingredient-unit-0').fill('cups');
+    await page.getByTestId('ingredient-heading-0').fill('Main');
+    await page.getByTestId('ingredient-name-0-0').fill('Tomato');
+    await page.getByTestId('ingredient-amount-0-0').fill('2');
+    await page.getByTestId('ingredient-unit-0-0').fill('cups');
     await page.getByTestId('step-content-0').fill('Chop the tomatoes');
     await page.getByTestId('post-submit').click();
 
@@ -100,9 +101,10 @@ test.describe('Auth + recipe create/persist + save (mocked API)', () => {
     await expect(page.getByTestId('post-form')).toBeVisible({ timeout: 15_000 });
     await page.getByTestId('post-title').fill(title);
     await page.getByTestId('post-description').fill('Save me');
-    await page.getByTestId('ingredient-name-0').fill('Salt');
-    await page.getByTestId('ingredient-amount-0').fill('1');
-    await page.getByTestId('ingredient-unit-0').fill('tsp');
+    await page.getByTestId('ingredient-heading-0').fill('Seasoning');
+    await page.getByTestId('ingredient-name-0-0').fill('Salt');
+    await page.getByTestId('ingredient-amount-0-0').fill('1');
+    await page.getByTestId('ingredient-unit-0-0').fill('tsp');
     await page.getByTestId('step-content-0').fill('Mix');
     await page.getByTestId('post-submit').click();
     await expect(page.getByTestId('recipe-title')).toHaveText(title);

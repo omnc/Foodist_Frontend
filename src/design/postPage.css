@@ -264,7 +264,24 @@
     font-size: 14px;
 }
 
+.ingredient-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.ingredient-group {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
 .ingredient-header {
+    display: flex;
+    gap: 10px;
     margin-bottom: 15px;
 }
 
