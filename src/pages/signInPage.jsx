@@ -43,7 +43,7 @@ function SignInPage() {
   };
 
   return (
-    <div>
+    <main id="main-content" tabIndex={-1}>
       <h1>Sign In</h1>
       {error && (
         <p role="alert" data-testid="register-error" style={{ color: 'crimson' }}>
@@ -51,6 +51,7 @@ function SignInPage() {
         </p>
       )}
       <form onSubmit={handleSignIn} data-testid="register-form">
+        <label htmlFor="email">Email</label>
         <input
           type="email"
           id="email"
@@ -62,6 +63,7 @@ function SignInPage() {
           required
           disabled={submitting}
         />
+        <label htmlFor="password">Password</label>
         <input
           type="password"
           id="password"
@@ -73,6 +75,7 @@ function SignInPage() {
           required
           disabled={submitting}
         />
+        <label htmlFor="confirmPassword">Confirm password</label>
         <input
           type="password"
           id="confirmPassword"
@@ -93,7 +96,7 @@ function SignInPage() {
           Do you have an account? Login
         </button>
       </div>
-    </div>
+    </main>
   );
 }
 

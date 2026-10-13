@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/header';
 import { useAuth } from '../contexts/authContext';
-import { API_URL } from '../config/api';
+import { apiFetch, authHeaders } from '../lib/apiClient';
 
 function SavedRecipesPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -22,8 +22,8 @@ function SavedRecipesPage() {
       setLoading(true);
       setError('');
       try {
-        const response = await fetch(`${API_URL}/saved-recipes`, {
-          headers: { Authorization: `Bearer ${user.token}` },
+        const response = await apiFetch('/saved-recipes', {
+          headers: authHeaders({ token: user?.token }),
         });
         const data = await response.json().catch(() => ([]));
         if (!response.ok) {
