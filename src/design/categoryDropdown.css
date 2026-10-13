@@ -1,8 +1,14 @@
-/* Category bar: each top-level item owns its submenu, positioned directly under its label. */
+/*
+ * Category mega menu: one grid with a column per category. Each item spans both rows via
+ * subgrid, so its label (row 1) and its links (row 2) share a column and stay aligned.
+ * The bar has a fixed height; row 2 overflows it as an overlay instead of pushing the page down.
+ */
 .category-dropdown {
+    --category-bar-height: 62px;
     position: relative;
     width: 100%;
     max-width: 1230px;
+    height: var(--category-bar-height);
     margin: 0 auto;
     margin-top: calc(var(--header-height) + 20px);
     background: white;
@@ -10,90 +16,117 @@
 }
 
 .category-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 40px;
-    padding: 20px 0;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: var(--category-bar-height) auto;
     margin: 0;
+    padding: 0 40px;
     list-style: none;
 }
 
-.category-item {
-    position: relative;
+/* Shared panel background behind every column's links. */
+.category-nav::before {
+    content: '';
+    grid-row: 2;
+    grid-column: 1 / -1;
+    margin: 0 -40px;
+    background: #fdeab5;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    display: none;
 }
 
+.category-item {
+    display: grid;
+    grid-row: 1 / span 2;
+    grid-template-rows: subgrid;
+    align-content: start;
+    min-width: 0;
+}
+
+/* Explicit columns: the panel background already fills row 2, so auto-placement would skip past it. */
+.category-item:nth-child(1) { grid-column: 1; }
+.category-item:nth-child(2) { grid-column: 2; }
+.category-item:nth-child(3) { grid-column: 3; }
+.category-item:nth-child(4) { grid-column: 4; }
+.category-item:nth-child(5) { grid-column: 5; }
+.category-item:nth-child(6) { grid-column: 6; }
+
 .category-dropdown-header-item {
+    align-self: center;
+    justify-self: start;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 22px;
+    font-size: 20px;
     line-height: 22px;
-    text-align: center;
+    text-align: left;
     cursor: pointer;
-    padding: 10px 15px;
+    padding: 10px 0;
     transition: color 0.2s ease;
     color: #000000;
     white-space: nowrap;
     background: transparent;
     border: none;
-    display: block;
     text-decoration: none;
 }
 
 .category-dropdown-header-item:hover,
-.category-item:focus-within > .category-dropdown-header-item {
+.category-dropdown-header-item:focus-visible {
     color: #667eea;
 }
 
 .category-submenu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 200px;
+    grid-row: 2;
+    position: relative;
+    z-index: 1;
     margin: 0;
-    padding: 12px 0;
+    padding: 16px 0 24px;
     list-style: none;
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
     display: none;
 }
 
-.category-item:hover > .category-submenu,
-.category-item:focus-within > .category-submenu {
+.category-nav:hover::before,
+.category-nav:focus-within::before,
+.category-nav:hover .category-submenu,
+.category-nav:focus-within .category-submenu {
     display: block;
 }
 
 .category-dropdown-content-item {
     display: block;
-    width: 100%;
     font-family: 'Inter', sans-serif;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 120%;
     text-align: left;
     cursor: pointer;
-    padding: 8px 15px;
+    padding: 4px 0;
     background: transparent;
     border: none;
-    color: #666;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    color: #000;
 }
 
 .category-dropdown-content-item:hover,
 .category-dropdown-content-item:focus-visible {
-    background-color: #f8f9ff;
     color: #667eea;
+    text-decoration: underline;
 }
 
 @media (max-width: 768px) {
     .category-nav {
-        flex-wrap: wrap;
-        gap: 20px;
+        padding: 0 12px;
+    }
+
+    .category-nav::before {
+        margin: 0 -12px;
     }
 
     .category-dropdown-header-item {
-        font-size: 18px;
+        font-size: 14px;
+        white-space: normal;
+    }
+
+    .category-dropdown-content-item {
+        font-size: 13px;
     }
 }

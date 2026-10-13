@@ -41,28 +41,76 @@ test.describe('Layout regressions (mocked API)', () => {
     await expect.poll(visibleSlide).toBe(1);
   });
 
-  test('each category submenu opens under its own label', async ({ page }) => {
+  const MENU = {
+    meal: ['Breakfast', 'Lunch', 'Dinner', 'Appetizer', 'Dessert', 'Drink', 'Bread', 'Side Dish'],
+    ingredient: ['Chicken', 'Beef', 'Pork', 'Seafood', 'Egg', 'Rice', 'Fruits', 'Vegetable'],
+    cuisine: ['Italian', 'French', 'Greek', 'Indian', 'Chinese', 'Korean', 'Japanese', 'Filipino', 'Mexican'],
+    occasion: ['Passover', 'Easter', 'Thanksgiving', 'Holiday', 'Christmas'],
+    'cooking-tip': ['Knife Tips', 'Ingredient Prep', 'Baking Tips', 'BBQ Tips', 'Preserving Tips'],
+  };
+
+  test('hovering the bar opens one panel with every column aligned under its label', async ({ page }) => {
     await page.goto('/#/');
-    for (const type of ['meal', 'ingredient', 'cuisine', 'occasion', 'cooking-tip']) {
+    const labels = page.locator('.category-nav > li > .category-dropdown-header-item');
+    await expect(labels).toHaveText(['Meals', 'Ingredients', 'Cuisines', 'Occasions', 'Cooking Tips', 'About us']);
+    await expect(page.locator('.category-submenu:visible')).toHaveCount(0);
+
+    await page.getByTestId('category-cuisine').locator('.category-dropdown-header-item').hover();
+    await expect(page.locator('.category-submenu:visible')).toHaveCount(5);
+
+    const nav = await page.locator('.category-nav').boundingBox();
+    const tops = [];
+    for (const [type, items] of Object.entries(MENU)) {
       const item = page.getByTestId(`category-${type}`);
-      await item.hover();
       const label = await item.locator('.category-dropdown-header-item').boundingBox();
       const submenu = item.locator('.category-submenu');
-      await expect(submenu).toBeVisible();
+      await expect(submenu.locator('li')).toHaveText(items);
       const box = await submenu.boundingBox();
       expect(Math.abs(box.x - label.x)).toBeLessThan(3);
       expect(box.y).toBeGreaterThanOrEqual(label.y + label.height - 1);
-      await expect(page.locator('.category-submenu:visible')).toHaveCount(1);
+      tops.push(box.y);
     }
+    expect(Math.max(...tops) - Math.min(...tops)).toBeLessThan(1);
+    const panel = await page.locator('.category-nav').evaluate((el) => {
+      const before = getComputedStyle(el, '::before');
+      return { display: before.display, width: parseFloat(before.width) };
+    });
+    expect(panel.display).toBe('block');
+    expect(panel.width).toBeGreaterThanOrEqual(nav.width - 1);
   });
 
-  test('About Us has no submenu and links to the About Us page', async ({ page }) => {
+  test('the panel overlays the page instead of pushing it down', async ({ page }) => {
+    await page.goto('/#/');
+    const next = page.locator('.category-dropdown + *');
+    const before = await next.boundingBox();
+    await page.getByTestId('category-meal').hover();
+    await expect(page.locator('.category-submenu:visible')).toHaveCount(5);
+    expect((await next.boundingBox()).y).toBe(before.y);
+  });
+
+  test('keyboard focus opens the panel and links keep their targets', async ({ page }) => {
+    await page.goto('/#/');
+    await page.getByTestId('category-meal').locator('.category-dropdown-header-item').focus();
+    await expect(page.locator('.category-submenu:visible')).toHaveCount(5);
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: 'Breakfast' })).toBeFocused();
+    await page.getByTestId('category-meal').getByRole('button', { name: 'Side Dish' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#\/search\?mealtype=SIDEDISH$/);
+
+    await page.goto('/#/');
+    await page.getByTestId('category-cuisine').getByRole('button', { name: 'Korean' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#\/search\?q=Korean$/);
+  });
+
+  test('About us has an empty column and links to the About Us page', async ({ page }) => {
     await page.goto('/#/');
     const about = page.getByTestId('category-about-us');
     await about.hover();
     await expect(about.locator('.category-submenu')).toHaveCount(0);
-    await expect(page.locator('.category-submenu:visible')).toHaveCount(0);
-    await about.getByRole('link', { name: 'About Us' }).click();
+    await expect(page.locator('.category-submenu:visible')).toHaveCount(5);
+    await about.getByRole('link', { name: 'About us' }).click();
     await expect(page).toHaveURL(/#\/aboutUs$/);
     await expect(page.getByRole('heading', { level: 1, name: 'About Us' })).toBeVisible();
   });
