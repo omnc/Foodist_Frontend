@@ -31,7 +31,7 @@ function SearchPage() {
   return (
     <div>
       <Header />
-      <main style={{ maxWidth: 960, margin: '1.5rem auto', padding: '0 1rem' }}>
+      <main id="main-content" tabIndex={-1} className="page-content">
         <h1>Find recipes</h1>
         <form onSubmit={onSubmit} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
           <input

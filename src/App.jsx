@@ -10,6 +10,7 @@ import PostPage from './pages/postPage.jsx';
 import PostPublishPage from './pages/postPublishPage.jsx';
 import SearchPage from './pages/searchPage.jsx';
 import SavedRecipesPage from './pages/savedRecipesPage.jsx';
+import AboutUsPage from './pages/aboutUsPage.jsx';
 import './index.css';
 
 function SkipLink() {
@@ -47,6 +48,7 @@ function App() {
             <Route path="/recipe/:id" element={<PostPublishPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/saved" element={<SavedRecipesPage />} />
+            <Route path="/aboutUs" element={<AboutUsPage />} />
           </Routes>
         </HashRouter>
       </RecipeProvider>
