@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useAuth } from './authContext';
-import { apiFetch, authHeaders } from '../lib/apiClient';
+import { apiFetch, authHeaders, describeApiError } from '../lib/apiClient';
 
 const RecipeContext = createContext();
 
@@ -17,7 +17,38 @@ export const RecipeProvider = ({ children }) => {
     const [currentRecipe, setCurrentRecipe] = useState(null); // Added for single recipe
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [savedIds, setSavedIds] = useState(() => new Set());
     const { user, isAuthenticated } = useAuth();
+
+    const refreshSavedIds = useCallback(async () => {
+        if (!isAuthenticated) {
+            setSavedIds(new Set());
+            return;
+        }
+        try {
+            const response = await apiFetch('/saved-recipes', {
+                headers: authHeaders({ token: user?.token }),
+            });
+            if (!response.ok) return;
+            const data = await response.json();
+            setSavedIds(new Set((Array.isArray(data) ? data : []).map((entry) => Number(entry.recipeID ?? entry.recipe?.id))));
+        } catch {
+            // Hearts fall back to "not saved"; the save call itself reports errors.
+        }
+    }, [isAuthenticated, user?.token]);
+
+    useEffect(() => {
+        refreshSavedIds();
+    }, [refreshSavedIds]);
+
+    const markSaved = (recipeId, saved) => {
+        setSavedIds((prev) => {
+            const next = new Set(prev);
+            if (saved) next.add(Number(recipeId));
+            else next.delete(Number(recipeId));
+            return next;
+        });
+    };
 
     const getAllRecipes = async (params = {}) => {
         setIsLoading(true);
@@ -164,7 +195,7 @@ export const RecipeProvider = ({ children }) => {
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
-                return { success: false, error: data.error || 'Failed to check saved state', isSaved: false };
+                return { success: false, error: describeApiError(response, data, 'Could not load saved state'), isSaved: false };
             }
             return { success: true, isSaved: !!data.isSaved, savedRecipe: data.savedRecipe || null };
         } catch (error) {
@@ -186,10 +217,12 @@ export const RecipeProvider = ({ children }) => {
             if (!response.ok) {
                 // Treat already-saved as success for duplicate-safe UX
                 if (response.status === 400 && /already saved/i.test(data.error || '')) {
+                    markSaved(recipeId, true);
                     return { success: true, alreadySaved: true, data };
                 }
-                return { success: false, error: data.error || 'Failed to save recipe', statusCode: response.status };
+                return { success: false, error: describeApiError(response, data, 'Failed to save recipe'), statusCode: response.status };
             }
+            markSaved(recipeId, true);
             return { success: true, data };
         } catch (error) {
             return { success: false, error: error.message };
@@ -207,8 +240,9 @@ export const RecipeProvider = ({ children }) => {
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
-                return { success: false, error: data.error || 'Failed to unsave recipe', statusCode: response.status };
+                return { success: false, error: describeApiError(response, data, 'Failed to unsave recipe'), statusCode: response.status };
             }
+            markSaved(recipeId, false);
             return { success: true, data };
         } catch (error) {
             return { success: false, error: error.message };
@@ -228,6 +262,8 @@ export const RecipeProvider = ({ children }) => {
         checkRecipeSaved,
         saveRecipe,
         unsaveRecipe,
+        savedIds,
+        refreshSavedIds,
         setCurrentRecipe // Added for clearing
     };
     
