@@ -25,6 +25,7 @@ export const mealTypeFromLabel = (label) => {
     Dessert: 'DESSERT',
     Drink: 'DRINK',
     Bread: 'BREAD',
+    'Side Dish': 'SIDEDISH',
     'Side Dishes': 'SIDEDISH',
   };
   return map[label] || null;

@@ -7,12 +7,12 @@ const CATEGORIES = [
   {
     name: 'Meals',
     type: 'meal',
-    items: ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Appetizer', 'Dessert', 'Drink', 'Bread', 'Side Dishes'],
+    items: ['Breakfast', 'Lunch', 'Dinner', 'Appetizer', 'Dessert', 'Drink', 'Bread', 'Side Dish'],
   },
   {
     name: 'Ingredients',
     type: 'ingredient',
-    items: ['Chicken', 'Beef', 'Pork', 'Seafood', 'Eggs', 'Rice', 'Fruits', 'Vegetables'],
+    items: ['Chicken', 'Beef', 'Pork', 'Seafood', 'Egg', 'Rice', 'Fruits', 'Vegetable'],
   },
   {
     name: 'Cuisines',
@@ -22,12 +22,12 @@ const CATEGORIES = [
   {
     name: 'Occasions',
     type: 'occasion',
-    items: ['Christmas', 'Thanksgiving', 'New Year', "Valentine's Day", 'Easter'],
+    items: ['Passover', 'Easter', 'Thanksgiving', 'Holiday', 'Christmas'],
   },
   {
     name: 'Cooking Tips',
     type: 'cooking-tip',
-    items: ['Knife Tips', 'Ingredients Prep', 'Baking Tips', 'BBQ Tips', 'Preserving Tips'],
+    items: ['Knife Tips', 'Ingredient Prep', 'Baking Tips', 'BBQ Tips', 'Preserving Tips'],
   },
 ];
 
@@ -84,7 +84,7 @@ export default function CategoryDropdown() {
         ))}
         <li className="category-item" data-testid="category-about-us">
           <Link to="/aboutUs" className="category-dropdown-header-item">
-            About Us
+            About us
           </Link>
         </li>
       </ul>
