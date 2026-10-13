@@ -21,3 +21,47 @@ body {
 #root {
     min-height: 100vh;
 }
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -100px;
+    z-index: 1000;
+    background: #111;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    top: 0.75rem;
+}
+
+:focus-visible {
+    outline: 2px solid #1a5f4a;
+    outline-offset: 2px;
+}
+
+@media print {
+    .header,
+    .publish-nav,
+    .action-buttons,
+    .publish-sidebar,
+    .skip-link,
+    .comment-form {
+        display: none !important;
+    }
+}

@@ -11,13 +11,16 @@ SPA for [Foodist](https://foodist-frontend.pages.dev/) — React 19 + Vite + Rea
 - Recipe create form aligned to backend meal-type enum (no `SNACK`)
 - Recipe detail uses API `averageRating`, `authorName`/`user`, `titleImage`/`titleImageUrl`, ingredients, directions, and persisted comments
 - Recipe detail Save/Unsave against `/saved-recipes` (duplicate-safe)
+- Share (Web Share API / clipboard) and print
+- Cookie-aware `credentials: 'include'` + CSRF header support (dual-mode with Bearer)
+- Basic a11y: skip link, labels, focus-visible, semantic landmarks, viewport meta
 - Playwright E2E (mocked API — never hits production Workers/D1)
 
 ## Not finished yet
 
-- Share / print
-- Full accessibility audit
-- Live local-D1 E2E (optional; mocked suite covers UI regression)
+- Full WCAG audit / axe CI gate
+- Dropping Bearer/`localStorage` entirely after cookie path verified in staging
+- Optional Playwright profile against local Wrangler (backend `test:local-d1` covers API)
 
 ## Setup
 
