@@ -1,52 +1,67 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext';
-import { useRecipe } from '../contexts/recipeContext';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { apiFetch, authHeaders, describeApiError } from '../lib/apiClient';
 import Header from '../components/header';
+import { RecipeCardGrid } from '../components/recipeCard';
 import '../design/myPage.css';
 
 function MyPage() {
-    const { user, isAuthenticated } = useAuth();
-    const { recipes, getAllRecipes, isLoading } = useRecipe();
-    const navigate = useNavigate();
-    
-    // Fetch all recipes when component mounts
+    const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+    const [recipes, setRecipes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
     useEffect(() => {
-        getAllRecipes();
-    }, []);
-    
-    if (!isAuthenticated) {
+        if (authLoading || !isAuthenticated) return;
+        let cancelled = false;
+        const load = async () => {
+            setLoading(true);
+            setError('');
+            try {
+                const response = await apiFetch('/recipes/mine', {
+                    headers: authHeaders({ token: user?.token }),
+                });
+                const data = await response.json().catch(() => ({}));
+                if (cancelled) return;
+                if (!response.ok) {
+                    setError(describeApiError(response, data, 'Failed to load your recipes'));
+                    return;
+                }
+                setRecipes(Array.isArray(data) ? data : []);
+            } catch (err) {
+                if (!cancelled) setError(err.message || 'Failed to load your recipes');
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        };
+        load();
+        return () => {
+            cancelled = true;
+        };
+    }, [authLoading, isAuthenticated, user?.token]);
+
+    if (!authLoading && !isAuthenticated) {
         return <Navigate to="/login" />;
     }
-
-    // Filter recipes that belong to the current user
-    const myRecipes = recipes.filter(recipe => 
-        recipe.authorId === user.id || recipe.authorEmail === user.email
-    );
 
     return (
         <div>
             <Header />
-            <div className="myRecipes">
+            <main id="main-content" tabIndex={-1} className="myRecipes">
                 <h1>My Recipes</h1>
-                {isLoading ? (
+                {authLoading || loading ? (
                     <p>Loading recipes...</p>
-                ) : myRecipes.length === 0 ? (
-                    <p>You haven't created any recipes yet.</p>
+                ) : error ? (
+                    <p role="alert" style={{ color: 'crimson' }}>{error}</p>
+                ) : recipes.length === 0 ? (
+                    <p>
+                        You haven't created any recipes yet. <Link to="/postPage">Add a recipe</Link>.
+                    </p>
                 ) : (
-                    <ul className="recipe-list">
-                        {myRecipes.map(recipe => (
-                            <li 
-                                key={recipe.id} 
-                                className="recipe-item"
-                                onClick={() => navigate(`/recipe/${recipe.id}`)}
-                            >
-                                {recipe.title}
-                            </li>
-                        ))}
-                    </ul>
+                    <RecipeCardGrid recipes={recipes} />
                 )}
-            </div>
+            </main>
         </div>
     );
 }

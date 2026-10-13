@@ -33,3 +33,12 @@ export function apiFetch(path, init = {}) {
     },
   });
 }
+
+/** User-facing message for a failed API response; server errors include the request id for log lookup. */
+export function describeApiError(response, data, fallback) {
+  if (response.status >= 500) {
+    const ref = data?.requestId || response.headers.get('X-Request-Id');
+    return `Something went wrong on our side. Please try again.${ref ? ` (ref ${ref})` : ''}`;
+  }
+  return data?.error || fallback;
+}

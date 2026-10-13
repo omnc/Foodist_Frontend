@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useRecipe } from '../contexts/recipeContext';
 import { useAuth } from '../contexts/authContext';
-import { apiFetch, authHeaders } from '../lib/apiClient';
+import { apiFetch, authHeaders, describeApiError } from '../lib/apiClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Header from '../components/header';
+import RatingSummary from '../components/ratingSummary';
 import '../design/postPublishPage.css';
 
 function PostPublishPage() {
@@ -22,7 +23,7 @@ function PostPublishPage() {
     } = useRecipe();
     const [checkedIngredients, setCheckedIngredients] = useState({});
     const [comment, setComment] = useState('');
-    const [commentRating, setCommentRating] = useState(5);
+    const [commentRating, setCommentRating] = useState(0);
     const [commentError, setCommentError] = useState('');
     const [commentSubmitting, setCommentSubmitting] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -46,8 +47,11 @@ function PostPublishPage() {
                 return;
             }
             const result = await checkRecipeSaved(id);
-            if (!cancelled && result.success) {
+            if (cancelled) return;
+            if (result.success) {
                 setIsSaved(!!result.isSaved);
+            } else {
+                setSaveError(result.error);
             }
         };
         loadSavedState();
@@ -119,9 +123,12 @@ function PostPublishPage() {
     };
 
     const handleCommentSubmit = async () => {
-        if (!comment.trim()) return;
         if (!isAuthenticated) {
             setCommentError('Please log in to comment');
+            return;
+        }
+        if (!commentRating) {
+            setCommentError('Please choose a star rating');
             return;
         }
         setCommentError('');
@@ -134,10 +141,11 @@ function PostPublishPage() {
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
-                setCommentError(data.error || 'Failed to post comment');
+                setCommentError(describeApiError(response, data, 'Failed to post comment'));
                 return;
             }
             setComment('');
+            setCommentRating(0);
             await getRecipeById(id);
         } catch (err) {
             setCommentError(err.message || 'Failed to post comment');
@@ -415,19 +423,21 @@ function PostPublishPage() {
                                 {commentError && <p role="alert" className="comment-error">{commentError}</p>}
                                 <textarea 
                                     className="comment-input"
-                                    placeholder={isAuthenticated ? 'Leave a comment for this recipe' : 'Log in to leave a comment'}
+                                    placeholder={isAuthenticated ? 'Leave a comment for this recipe (optional)' : 'Log in to leave a comment'}
+                                    aria-label="Comment (optional)"
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                     disabled={!isAuthenticated || commentSubmitting}
                                 />
                                 <div className="comment-actions">
-                                    <div className="rating-input" aria-label="Rating">
+                                    <div className="rating-input" role="group" aria-label="Rating (required)" data-testid="comment-rating">
                                         {[1, 2, 3, 4, 5].map(star => (
                                             <button
                                                 type="button"
                                                 key={star}
                                                 className="star-input"
                                                 aria-label={`${star} stars`}
+                                                aria-pressed={star === commentRating}
                                                 onClick={() => setCommentRating(star)}
                                                 disabled={!isAuthenticated || commentSubmitting}
                                             >
@@ -438,7 +448,9 @@ function PostPublishPage() {
                                     <button 
                                         className="submit-comment-btn"
                                         onClick={handleCommentSubmit}
-                                        disabled={!isAuthenticated || commentSubmitting}
+                                        disabled={!isAuthenticated || commentSubmitting || !commentRating}
+                                        title={commentRating ? undefined : 'Choose a star rating first'}
+                                        data-testid="comment-submit"
                                     >
                                         {commentSubmitting ? 'Submitting…' : 'Submit'}
                                     </button>
@@ -462,7 +474,7 @@ function PostPublishPage() {
                                                         {new Date(c.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                                                     </span>
                                                 </div>
-                                                <p className="comment-text">{c.body}</p>
+                                                {c.body && <p className="comment-text">{c.body}</p>}
                                                 <div className="comment-rating">
                                                     {renderStars(c.rating)}
                                                     <span className="rating-value">{c.rating}</span>
@@ -505,47 +517,13 @@ function PostPublishPage() {
                                         <span className="trending-category">{getMealTypeDisplay(recipe.mealtype)}</span>
                                         <h4 className="trending-title">{recipe.title}</h4>
                                         <div className="trending-rating">
-                                            {renderStars(4.4)}
-                                            <span className="rating-value">4.4</span>
+                                            <RatingSummary averageRating={recipe.averageRating} ratingCount={recipe.ratingCount} />
                                         </div>
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <>
-                                <div className="trending-card placeholder">
-                                    <div className="trending-image-container">
-                                        <div className="trending-placeholder">
-                                            <span>🍽</span>
-                                        </div>
-                                        <button className="save-icon">♡</button>
-                                    </div>
-                                    <div className="trending-info">
-                                        <span className="trending-category">Dinner</span>
-                                        <h4 className="trending-title">Lorem Ipsum</h4>
-                                        <div className="trending-rating">
-                                            {renderStars(4.4)}
-                                            <span className="rating-value">4.4</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="trending-card placeholder">
-                                    <div className="trending-image-container">
-                                        <div className="trending-placeholder">
-                                            <span>🍰</span>
-                                        </div>
-                                        <button className="save-icon">♡</button>
-                                    </div>
-                                    <div className="trending-info">
-                                        <span className="trending-category">Dessert</span>
-                                        <h4 className="trending-title">Lorem Ipsum</h4>
-                                        <div className="trending-rating">
-                                            {renderStars(4.4)}
-                                            <span className="rating-value">4.4</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </>
+                            <p className="no-content">No other recipes yet</p>
                         )}
                     </div>
                 </aside>

@@ -13,6 +13,18 @@ function json(data, status = 200) {
   };
 }
 
+function ratingFields(recipe) {
+  const ratings = (recipe.comments || []).map((c) => c.rating);
+  const averageRating = ratings.length
+    ? Math.round((ratings.reduce((sum, r) => sum + r, 0) / ratings.length) * 10) / 10
+    : null;
+  return { averageRating, ratingCount: ratings.length, totalComments: ratings.length };
+}
+
+function withRating(recipe) {
+  return { ...recipe, ...ratingFields(recipe) };
+}
+
 function publicUser(user) {
   const { password, ...safe } = user;
   return safe;
@@ -91,18 +103,47 @@ export async function installMockApi(page) {
 
     // RECIPES
     if (method === 'GET' && path === '/recipes') {
-      return route.fulfill(json(state.recipes));
+      return route.fulfill(json(state.recipes.map(withRating)));
     }
 
     if (method === 'GET' && path === '/recipes/search') {
-      return route.fulfill(json(state.recipes));
+      return route.fulfill(json(state.recipes.map(withRating)));
+    }
+
+    if (method === 'GET' && path === '/recipes/mine') {
+      if (!authedUserId) return route.fulfill(json({ error: 'Unauthorized' }, 401));
+      return route.fulfill(json(state.recipes.filter((r) => r.userID === authedUserId).map(withRating)));
+    }
+
+    const commentMatch = path.match(/^\/recipes\/(\d+)\/comments$/);
+    if (method === 'POST' && commentMatch) {
+      if (!authedUserId) return route.fulfill(json({ error: 'Unauthorized' }, 401));
+      const recipe = state.recipes.find((r) => r.id === Number(commentMatch[1]));
+      if (!recipe) return route.fulfill(json({ error: 'Recipe not found' }, 404));
+      const body = req.postDataJSON() || {};
+      const rating = Number(body.rating);
+      if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+        return route.fulfill(json({ error: 'A rating between 1 and 5 is required' }, 400));
+      }
+      const user = state.users.find((u) => u.id === authedUserId);
+      const comment = {
+        id: (recipe.comments?.length || 0) + 1,
+        userID: authedUserId,
+        recipeID: recipe.id,
+        body: typeof body.body === 'string' ? body.body.trim() : '',
+        rating,
+        createdAt: new Date().toISOString(),
+        user: { id: user.id, email: user.email, username: user.username },
+      };
+      recipe.comments = [comment, ...(recipe.comments || [])];
+      return route.fulfill(json(comment, 201));
     }
 
     const recipeMatch = path.match(/^\/recipes\/(\d+)$/);
     if (method === 'GET' && recipeMatch) {
       const recipe = state.recipes.find((r) => r.id === Number(recipeMatch[1]));
       if (!recipe) return route.fulfill(json({ error: 'Recipe not found' }, 404));
-      return route.fulfill(json(recipe));
+      return route.fulfill(json(withRating(recipe)));
     }
 
     if (method === 'POST' && path === '/recipes') {
@@ -217,7 +258,7 @@ export async function installMockApi(page) {
         .filter((s) => s.userID === authedUserId)
         .map((s) => ({
           ...s,
-          recipe: state.recipes.find((r) => r.id === s.recipeID) || null,
+          recipe: withRating(state.recipes.find((r) => r.id === s.recipeID) || {}),
         }));
       return route.fulfill(json(items));
     }
@@ -236,4 +277,57 @@ export async function installMockApi(page) {
   });
 
   return state;
+}
+
+/** Seed a logged-in user without going through the UI (token restored via /auth/me). */
+export async function seedSession(page, state, email = `seed-${Date.now()}@example.com`) {
+  const user = {
+    id: state.nextUserId++,
+    email,
+    password: 'password123',
+    username: null,
+    pfpUrl: null,
+    bio: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  state.users.push(user);
+  const token = `tok-seed-${user.id}`;
+  state.tokens.set(token, user.id);
+  await page.addInitScript((t) => localStorage.setItem('token', t), token);
+  return user;
+}
+
+/** Seed a recipe owned by `user` with optional comment ratings. */
+export function seedRecipe(state, user, { title, mealtype = 'DINNER', ratings = [] }) {
+  const recipe = {
+    id: state.nextRecipeId++,
+    title,
+    description: `${title} description`,
+    mealtype,
+    servingSize: 1,
+    level: 1,
+    prepTime: 0,
+    cookTime: 0,
+    titleImage: null,
+    titleImageUrl: null,
+    authorName: user.email,
+    user: { id: user.id, email: user.email, username: null },
+    userID: user.id,
+    ingredients: [],
+    descriptionBlocks: [],
+    comments: ratings.map((rating, i) => ({
+      id: i + 1,
+      userID: 999,
+      recipeID: 0,
+      body: '',
+      rating,
+      createdAt: new Date().toISOString(),
+      user: { id: 999, email: 'rater@example.com', username: null },
+    })),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  state.recipes.push(recipe);
+  return recipe;
 }
