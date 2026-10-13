@@ -214,6 +214,16 @@ function PostPublishPage() {
 
     const totalTime = (parseInt(currentRecipe.prepTime) || 0) + (parseInt(currentRecipe.cookTime) || 0);
     const trendingRecipes = recipes.filter(r => r.id !== currentRecipe.id).slice(0, 2);
+    // Groups render in the order they were entered on the post page; older API responses only have a flat list.
+    const ingredientGroups = currentRecipe.ingredientGroups?.length
+        ? currentRecipe.ingredientGroups
+        : currentRecipe.ingredients?.length
+            ? [{ heading: null, items: currentRecipe.ingredients }]
+            : [];
+    const groupOffsets = ingredientGroups.reduce(
+        (offsets, group, i) => [...offsets, offsets[i] + group.items.length],
+        [0]
+    );
 
     return (
         <div className="publish-page">
@@ -344,26 +354,35 @@ function PostPublishPage() {
                     {/* Ingredients Section */}
                     <section className="recipe-section">
                         <h2>Ingredients</h2>
-                        {currentRecipe.ingredients && currentRecipe.ingredients.length > 0 ? (
+                        {ingredientGroups.length > 0 ? (
                             <div className="ingredients-list" data-testid="recipe-ingredients">
-                                {currentRecipe.ingredients.map((ingredient, index) => (
-                                    <div 
-                                        key={index} 
-                                        className={`ingredient-row ${checkedIngredients[index] ? 'checked' : ''}`}
-                                        onClick={() => toggleIngredient(index)}
-                                        data-testid={`recipe-ingredient-${index}`}
-                                    >
-                                        <input 
-                                            type="checkbox" 
-                                            checked={checkedIngredients[index] || false}
-                                            onChange={() => toggleIngredient(index)}
-                                            className="ingredient-checkbox"
-                                        />
-                                        <span className="ingredient-text">
-                                            {[ingredient.amount || ingredient.measurement, ingredient.unit, ingredient.name || ingredient.value]
-                                                .filter(Boolean)
-                                                .join(' ')}
-                                        </span>
+                                {ingredientGroups.map((group, groupIndex) => (
+                                    <div key={groupIndex} className="ingredient-group-view" data-testid={`recipe-ingredient-group-${groupIndex}`}>
+                                        {group.heading && <h3 className="ingredient-group-heading">{group.heading}</h3>}
+                                        {group.items.map((ingredient, index) => {
+                                            const key = `${groupIndex}-${index}`;
+                                            const flatIndex = groupOffsets[groupIndex] + index;
+                                            return (
+                                                <div 
+                                                    key={key} 
+                                                    className={`ingredient-row ${checkedIngredients[key] ? 'checked' : ''}`}
+                                                    onClick={() => toggleIngredient(key)}
+                                                    data-testid={`recipe-ingredient-${flatIndex}`}
+                                                >
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={checkedIngredients[key] || false}
+                                                        onChange={() => toggleIngredient(key)}
+                                                        className="ingredient-checkbox"
+                                                    />
+                                                    <span className="ingredient-text">
+                                                        {[ingredient.amount || ingredient.measurement, ingredient.unit, ingredient.name || ingredient.value]
+                                                            .filter(Boolean)
+                                                            .join(' ')}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 ))}
                             </div>

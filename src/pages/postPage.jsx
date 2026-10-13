@@ -6,6 +6,11 @@ import { MEAL_TYPES } from '../config/api';
 import Header from '../components/header';
 import '../design/postPage.css';
 
+const emptyIngredient = () => ({ name: '', amount: '', unit: '' });
+
+let nextGroupKey = 1;
+const newIngredientGroup = () => ({ key: nextGroupKey++, heading: '', items: [emptyIngredient()] });
+
 function PostPage() {
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const { createRecipe, isLoading: recipeLoading } = useRecipe();
@@ -23,7 +28,8 @@ function PostPage() {
     const [note, setNote] = useState('');
     
     // Dynamic fields
-    const [ingredients, setIngredients] = useState([{ name: '', amount: '', unit: '' }]);
+    // Ordered top-to-bottom as displayed; "Add heading" prepends, so groups stack upward.
+    const [ingredientGroups, setIngredientGroups] = useState(() => [newIngredientGroup()]);
     const [descriptionBlocks, setDescriptionBlocks] = useState([{ step: 1, content: '', image: null }]);
     
     const [error, setError] = useState('');
@@ -47,19 +53,38 @@ function PostPage() {
         return null;
     }
 
-    const addIngredient = () => {
-        setIngredients([...ingredients, { name: '', amount: '', unit: '' }]);
+    const addIngredientGroup = () => {
+        setIngredientGroups((groups) => [newIngredientGroup(), ...groups]);
     };
 
-    const removeIngredient = (index) => {
-        setIngredients(ingredients.filter((_, i) => i !== index));
+    const removeIngredientGroup = (groupIndex) => {
+        setIngredientGroups((groups) => groups.filter((_, gi) => gi !== groupIndex));
     };
 
-    const updateIngredient = (index, field, value) => {
-        const updated = ingredients.map((ing, i) => 
-            i === index ? { ...ing, [field]: value } : ing
+    const updateGroupHeading = (groupIndex, heading) => {
+        setIngredientGroups((groups) => groups.map((g, gi) => (gi === groupIndex ? { ...g, heading } : g)));
+    };
+
+    const addIngredient = (groupIndex) => {
+        setIngredientGroups((groups) =>
+            groups.map((g, gi) => (gi === groupIndex ? { ...g, items: [...g.items, emptyIngredient()] } : g))
         );
-        setIngredients(updated);
+    };
+
+    const removeIngredient = (groupIndex, index) => {
+        setIngredientGroups((groups) =>
+            groups.map((g, gi) => (gi === groupIndex ? { ...g, items: g.items.filter((_, i) => i !== index) } : g))
+        );
+    };
+
+    const updateIngredient = (groupIndex, index, field, value) => {
+        setIngredientGroups((groups) =>
+            groups.map((g, gi) =>
+                gi === groupIndex
+                    ? { ...g, items: g.items.map((ing, i) => (i === index ? { ...ing, [field]: value } : ing)) }
+                    : g
+            )
+        );
     };
 
     const addStep = () => {
@@ -91,6 +116,11 @@ function PostPage() {
         e.preventDefault();
         setError('');
 
+        if (ingredientGroups.some((g) => !g.heading.trim())) {
+            setError('Every ingredient group needs a heading');
+            return;
+        }
+
         const formData = new FormData();
         
         // Add basic recipe info
@@ -108,8 +138,10 @@ function PostPage() {
             formData.append('titleImage', titleImage);
         }
         
-        // Add ingredients as JSON string
-        formData.append('ingredients', JSON.stringify(ingredients));
+        const groupsPayload = ingredientGroups.map((g) => ({ heading: g.heading.trim(), items: g.items }));
+        formData.append('ingredientGroups', JSON.stringify(groupsPayload));
+        // Flat copy for API versions that predate ingredient groups
+        formData.append('ingredients', JSON.stringify(groupsPayload.flatMap((g) => g.items)));
         
         // Add description blocks (without images)
         const blocksData = descriptionBlocks.map(block => ({
@@ -268,61 +300,96 @@ function PostPage() {
 
                     {/* Ingredients */}
                     <div className="form-section">
-                        <h3>Ingredients</h3>
-                        <div className="ingredient-header">
-                            <input 
-                                type="text" 
-                                placeholder="Heading (e.g. For the sauce)"
-                            />
+                        <div className="ingredient-section-header">
+                            <h3>Ingredients</h3>
+                            <button
+                                type="button"
+                                onClick={addIngredientGroup}
+                                className="add-btn"
+                                data-testid="add-ingredient-group"
+                            >
+                                + Add heading
+                            </button>
                         </div>
-                        <div className="ingredient-labels">
-                            <span>Ingredient</span>
-                            <span>Quantity</span>
-                            <span>Unit</span>
-                            <span></span>
-                        </div>
-                        {ingredients.map((ingredient, index) => (
-                            <div key={index} className="ingredient-item">
-                                <input 
-                                    type="text"
-                                    data-testid={`ingredient-name-${index}`}
-                                    value={ingredient.name}
-                                    onChange={(e) => updateIngredient(index, 'name', e.target.value)}
-                                    placeholder="e.g. fresh tomato"
-                                    required
-                                />
-                                <input 
-                                    type="text"
-                                    data-testid={`ingredient-amount-${index}`}
-                                    value={ingredient.amount}
-                                    onChange={(e) => updateIngredient(index, 'amount', e.target.value)}
-                                    placeholder="e.g. 2"
-                                    required
-                                />
-                                <input 
-                                    type="text"
-                                    data-testid={`ingredient-unit-${index}`}
-                                    value={ingredient.unit}
-                                    onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
-                                    placeholder="e.g. cups"
-                                    required
-                                />
+                        {ingredientGroups.map((group, groupIndex) => (
+                            <div
+                                key={group.key}
+                                className="ingredient-group"
+                                data-testid={`ingredient-group-${groupIndex}`}
+                            >
+                                <div className="ingredient-header">
+                                    <input
+                                        type="text"
+                                        aria-label={`Ingredient group ${groupIndex + 1} heading`}
+                                        data-testid={`ingredient-heading-${groupIndex}`}
+                                        value={group.heading}
+                                        onChange={(e) => updateGroupHeading(groupIndex, e.target.value)}
+                                        placeholder="Heading (e.g. For the sauce)"
+                                        maxLength={120}
+                                        required
+                                    />
+                                    {ingredientGroups.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeIngredientGroup(groupIndex)}
+                                            className="remove-btn"
+                                            aria-label={`Remove ingredient group ${groupIndex + 1}`}
+                                        >
+                                            ×
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="ingredient-labels">
+                                    <span>Ingredient</span>
+                                    <span>Quantity</span>
+                                    <span>Unit</span>
+                                    <span></span>
+                                </div>
+                                {group.items.map((ingredient, index) => (
+                                    <div key={index} className="ingredient-item">
+                                        <input 
+                                            type="text"
+                                            data-testid={`ingredient-name-${groupIndex}-${index}`}
+                                            value={ingredient.name}
+                                            onChange={(e) => updateIngredient(groupIndex, index, 'name', e.target.value)}
+                                            placeholder="e.g. fresh tomato"
+                                            required
+                                        />
+                                        <input 
+                                            type="text"
+                                            data-testid={`ingredient-amount-${groupIndex}-${index}`}
+                                            value={ingredient.amount}
+                                            onChange={(e) => updateIngredient(groupIndex, index, 'amount', e.target.value)}
+                                            placeholder="e.g. 2"
+                                            required
+                                        />
+                                        <input 
+                                            type="text"
+                                            data-testid={`ingredient-unit-${groupIndex}-${index}`}
+                                            value={ingredient.unit}
+                                            onChange={(e) => updateIngredient(groupIndex, index, 'unit', e.target.value)}
+                                            placeholder="e.g. cups"
+                                            required
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => removeIngredient(groupIndex, index)}
+                                            className="remove-btn"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
                                 <button 
                                     type="button" 
-                                    onClick={() => removeIngredient(index)}
-                                    className="remove-btn"
+                                    onClick={() => addIngredient(groupIndex)}
+                                    className="add-btn"
+                                    data-testid={`add-ingredient-${groupIndex}`}
                                 >
-                                    ×
+                                    + Add ingredient
                                 </button>
                             </div>
                         ))}
-                        <button 
-                            type="button" 
-                            onClick={addIngredient}
-                            className="add-btn"
-                        >
-                            + Add ingredient
-                        </button>
                     </div>
 
                     {/* Directions */}
