@@ -219,7 +219,7 @@ function PostPublishPage() {
                     <li><Link to="/search">Cuisines</Link></li>
                     <li><Link to="/search?mealtype=DESSERT">Desserts</Link></li>
                     <li><Link to="/search">Cooking Tips</Link></li>
-                    <li><Link to="/">About us</Link></li>
+                    <li><Link to="/aboutUs">About us</Link></li>
                 </ul>
             </nav>
 

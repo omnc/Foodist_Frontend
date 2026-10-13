@@ -1,6 +1,10 @@
 @import './design/userDropDown.css';
 @import './design/categoryDropdown.css';
 
+:root {
+    --header-height: 80px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -20,6 +24,13 @@ body {
 
 #root {
     min-height: 100vh;
+}
+
+/* The header is position: fixed, so page bodies must clear it themselves. */
+.page-content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: calc(var(--header-height) + 1.5rem) 1rem 1.5rem;
 }
 
 .visually-hidden {

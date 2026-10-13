@@ -45,7 +45,7 @@ function SavedRecipesPage() {
     return (
       <div>
         <Header />
-        <p style={{ padding: '1rem' }}>Loading saved recipes…</p>
+        <p className="page-content">Loading saved recipes…</p>
       </div>
     );
   }
@@ -53,7 +53,7 @@ function SavedRecipesPage() {
   return (
     <div>
       <Header />
-      <main style={{ maxWidth: 960, margin: '1.5rem auto', padding: '0 1rem' }}>
+      <main id="main-content" tabIndex={-1} className="page-content">
         <h1>Saved recipes</h1>
         {error && (
           <p role="alert" style={{ color: 'crimson' }}>

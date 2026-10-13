@@ -47,11 +47,14 @@ export default function Carousel() {
 
         <div className="carousel-inner">
           <div className="carousel-track" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-            {slides.map((slide) => (
+            {slides.map((slide, index) => (
               <button
                 type="button"
                 key={slide.id}
                 className="carousel-slide"
+                data-testid={`carousel-slide-${index}`}
+                aria-hidden={index !== currentSlide}
+                tabIndex={index === currentSlide ? 0 : -1}
                 onClick={() => navigate(slide.to)}
                 style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer', textAlign: 'left' }}
               >
@@ -78,6 +81,7 @@ export default function Carousel() {
             className={`carousel-dot ${index === currentSlide ? 'active' : ''}`}
             onClick={() => setCurrentSlide(index)}
             aria-label={`Go to slide ${index + 1}`}
+            aria-current={index === currentSlide}
           />
         ))}
       </div>
