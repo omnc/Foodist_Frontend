@@ -1,0 +1,158 @@
+.categories {
+    min-height: 48.5rem;
+    padding: 10.25rem var(--page-gutter) 8rem;
+}
+
+.categoryGrid,
+.joinInner,
+.summer {
+    width: min(var(--content-width), 100%);
+    margin-inline: auto;
+}
+
+.categoryGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.875rem;
+}
+
+.categoryCard {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.875rem 1.5rem 1.5rem 1.8125rem;
+    border: var(--border);
+    border-radius: var(--radius-card);
+    background-color: var(--color-white);
+    color: inherit;
+    font-size: 1.875rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.categoryCard img {
+    grid-column: 1 / -1;
+    width: 100%;
+    aspect-ratio: 336 / 312;
+    border: var(--border);
+    object-fit: cover;
+}
+
+.categoryCard:hover svg { transform: translateX(0.25rem); }
+.categoryCard svg { transition: transform 0.15s ease; }
+
+.join {
+    min-height: 46.125rem;
+    padding: 10.5rem var(--page-gutter) 6rem;
+    background-color: var(--color-yellow);
+}
+
+.joinInner {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    align-items: end;
+    gap: 4rem;
+}
+
+.joinCopy h2,
+.summerIntro h2 {
+    margin: 0;
+    font-size: 2.625rem;
+    line-height: 1.15;
+}
+
+.joinCopy p {
+    max-width: 39rem;
+    margin: 1.5rem 0 2.5rem;
+    font-size: 1.125rem;
+    line-height: 1.55;
+}
+
+.joinCopy a { width: 19rem; }
+
+.characters {
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.characters img { width: 22%; height: auto; }
+.characters img:nth-child(2) { width: 19%; }
+.characters img:nth-child(3) { width: 26%; }
+.characters img:nth-child(4) { width: 24%; }
+
+.summer {
+    min-height: 92.75rem;
+    padding: 10rem 0 4.8125rem;
+}
+
+.summerIntro {
+    display: grid;
+    grid-template-columns: 22rem 1fr;
+    gap: 4.5rem;
+    align-items: start;
+    margin-bottom: 4rem;
+}
+
+.summerIntro p {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.5;
+}
+
+.featureGrid {
+    display: grid;
+    grid-template-columns: 24.5rem minmax(0, 1fr);
+    gap: 1.875rem;
+    align-items: start;
+}
+
+.smallFeatures {
+    display: grid;
+    gap: 1.875rem;
+}
+
+.featureGrid :global([data-testid^='recipe-card-']) :global(a) { padding: 1.875rem 1.5rem 1.6875rem 1.8125rem; }
+.largeFeature :global([data-testid^='recipe-card-']) :global(div[class*='media']) { aspect-ratio: 756 / 854; }
+.largeFeature :global([data-testid^='recipe-card-']) :global(img) { object-fit: cover; }
+
+.allLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    color: inherit;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.error { color: var(--color-error); }
+
+@media (max-width: 62rem) {
+    .categories { min-height: auto; padding-block: 6rem; }
+    .categoryCard { font-size: 1.5rem; }
+    .join { min-height: auto; padding-block: 6rem; }
+    .joinInner { grid-template-columns: 1fr; }
+    .characters { max-width: 38rem; }
+    .summer { min-height: auto; padding: 6rem var(--page-gutter); }
+    .featureGrid { grid-template-columns: minmax(16rem, 0.8fr) 1.2fr; }
+}
+
+@media (max-width: 48rem) {
+    .categoryGrid { grid-template-columns: 1fr; }
+    .categoryCard img { aspect-ratio: 16 / 10; }
+    .summerIntro { grid-template-columns: 1fr; gap: 1.25rem; }
+    .featureGrid { grid-template-columns: 1fr; }
+    .largeFeature :global(div[class*='media']) { aspect-ratio: 336 / 312; }
+}
+
+@media (max-width: 40rem) {
+    .categories { padding-block: 4rem; }
+    .join { padding-block: 4rem; }
+    .joinCopy h2, .summerIntro h2 { font-size: 2.125rem; }
+    .characters { gap: 0; }
+    .summer { padding-block: 4rem; }
+}

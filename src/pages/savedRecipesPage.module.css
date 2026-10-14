@@ -1,0 +1,14 @@
+.main {
+    min-height: 75rem;
+    padding: 4rem var(--page-gutter) 8rem;
+}
+
+.container {
+    width: min(var(--content-width), 100%);
+    margin-inline: auto;
+}
+
+.container h1 {
+    margin: 0 0 3rem;
+    font-size: 2.625rem;
+}
