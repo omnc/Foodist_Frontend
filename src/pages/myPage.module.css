@@ -1,0 +1,274 @@
+.main {
+    font-family: var(--font-body);
+    padding: 3.3125rem var(--page-gutter) 11.4rem;
+}
+
+.container {
+    width: min(var(--content-width), 100%);
+    margin-inline: auto;
+}
+
+/* Profile card on the left, summary column on the right */
+.top {
+    display: grid;
+    grid-template-columns: minmax(0, 810fr) minmax(0, 393fr);
+    gap: 1.875rem;
+}
+
+.profile {
+    position: relative;
+    min-height: 25.75rem;
+    border: var(--border);
+    border-radius: var(--radius-card);
+    background-color: var(--color-white);
+    overflow: hidden;
+}
+
+.banner {
+    height: 8.9375rem;
+    border-bottom: var(--border);
+    background-color: var(--color-yellow);
+}
+
+.avatar {
+    position: absolute;
+    top: 1.9375rem;
+    left: 1.75rem;
+    box-sizing: border-box;
+}
+
+.actions {
+    position: absolute;
+    top: 10rem;
+    right: 1.1875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gear {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-ink);
+}
+
+.gear:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.editButton {
+    min-width: 5.5625rem;
+    min-height: 2.25rem;
+    padding-block: 0;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.info {
+    padding: 6.0625rem 2.75rem 2.5rem;
+}
+
+.name {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.bio,
+.bioEmpty {
+    max-width: 26rem;
+    margin: 0.875rem 0 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.bioEmpty {
+    color: var(--color-muted);
+}
+
+.socials {
+    display: flex;
+    gap: 0.75rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.socials a {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--color-ink);
+}
+
+.socials a:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.aside {
+    display: flex;
+    flex-direction: column;
+    gap: 1.0625rem;
+}
+
+.stats,
+.savedLink {
+    border: var(--border);
+    border-radius: var(--radius-card);
+    background-color: var(--color-white);
+}
+
+.stats {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 3.4375rem;
+    min-height: 12rem;
+    padding: 0 1.5rem 0 2.3125rem;
+}
+
+.mascot {
+    width: 11.625rem;
+    height: auto;
+}
+
+.statList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    margin: 0;
+}
+
+.statList dt,
+.statList dd {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.statList dd {
+    order: -1;
+}
+
+.statList > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.savedLink {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    height: 4.5rem;
+    padding: 0 2.0625rem 0 1.1875rem;
+    color: var(--color-ink);
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.savedLink span {
+    flex: 1;
+}
+
+.savedLink:hover {
+    background-color: var(--color-panel);
+}
+
+.addButton {
+    min-height: 3.4375rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+/* My recipes */
+.listHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 7.9375rem 0 1.65rem;
+}
+
+.listHead h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.results :global(ul) {
+    gap: 1.875rem;
+}
+
+.listTools {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.viewAll {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.viewAll:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.error {
+    color: var(--color-error);
+}
+
+@media (max-width: 64rem) {
+    .top {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .listHead {
+        margin-top: 4rem;
+    }
+}
+
+@media (max-width: 40rem) {
+    .main {
+        padding-block: 2.5rem 6rem;
+    }
+
+    .info {
+        padding-inline: 1.25rem;
+    }
+
+    .avatar {
+        left: 1.25rem;
+    }
+
+    .listHead {
+        margin-top: 3rem;
+    }
+
+    .listHead h1 {
+        font-size: 1.5rem;
+        white-space: nowrap;
+    }
+
+    .stats {
+        gap: 1.5rem;
+        padding-inline: 1.25rem;
+    }
+
+    .mascot {
+        width: 8rem;
+    }
+}

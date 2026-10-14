@@ -7,8 +7,9 @@ const ACCEPTED_TYPES = ['image/jpeg', 'image/png'];
 /**
  * Dashed upload area: an "Upload" pill, drag-and-drop and a preview of the chosen image.
  * Controlled through `file` / `onChange(file | null)`; `testId` goes on the hidden file input.
+ * `currentUrl` shows an already-saved image until a new file is chosen.
  */
-export default function ImageDropzone({ file, onChange, label, testId, className = '' }) {
+export default function ImageDropzone({ file, onChange, label, testId, currentUrl = '', className = '' }) {
   const inputId = useId();
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
@@ -45,6 +46,8 @@ export default function ImageDropzone({ file, onChange, label, testId, className
     if (inputRef.current) inputRef.current.value = '';
   };
 
+  const shownUrl = previewUrl || currentUrl;
+
   return (
     <div
       className={`${styles.dropzone} ${dragging ? styles.dragging : ''} ${className}`}
@@ -62,10 +65,10 @@ export default function ImageDropzone({ file, onChange, label, testId, className
         aria-label={label}
         onChange={(event) => choose(event.target.files)}
       />
-      {previewUrl ? <img src={previewUrl} alt="" className={styles.preview} /> : null}
-      <div className={`${styles.content} ${previewUrl ? styles.overPreview : ''}`}>
+      {shownUrl ? <img src={shownUrl} alt="" className={styles.preview} /> : null}
+      <div className={`${styles.content} ${shownUrl ? styles.overPreview : ''}`}>
         <label htmlFor={inputId} className={styles.upload}>
-          <ImageIcon size={16} />
+          <ImageIcon size={22} />
           Upload
         </label>
         {file ? (

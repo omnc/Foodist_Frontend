@@ -1,0 +1,106 @@
+.main {
+    padding: 3.3125rem var(--page-gutter) 10.6rem;
+    font-family: var(--font-body);
+}
+
+.wrap {
+    width: min(var(--content-width), 100%);
+    margin-inline: auto;
+}
+
+.panel {
+    composes: panel from '../styles/formPanel.module.css';
+    --panel-top: 3.75rem;
+}
+.title { composes: title from '../styles/formPanel.module.css'; }
+.error { composes: error from '../styles/formPanel.module.css'; }
+.field { composes: field from '../styles/formPanel.module.css'; }
+.heading { composes: heading from '../styles/formPanel.module.css'; }
+.input { composes: input from '../styles/formPanel.module.css'; }
+.textarea { composes: textarea from '../styles/formPanel.module.css'; }
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 2.9375rem;
+    margin-top: 3.6875rem;
+}
+
+.photoField {
+    margin-bottom: 0.9375rem;
+}
+
+.dropzone {
+    width: min(21.625rem, 100%);
+    min-height: 19.8125rem;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 2.4375rem;
+    margin-top: 1rem;
+}
+
+.actions .submit {
+    min-height: 3.4375rem;
+    padding-inline: 2.75rem;
+    font-size: 1.125rem;
+}
+
+.actions .cancel {
+    color: var(--color-ink);
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.cancel:hover {
+    text-decoration: underline;
+}
+
+.cancel:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+@media (max-width: 48rem) {
+    .panel {
+        padding-inline: 1.5rem;
+        border-radius: 1.75rem;
+    }
+
+    .title {
+        font-size: 2.25rem;
+    }
+
+    .heading {
+        font-size: 1.75rem;
+    }
+
+    .form {
+        gap: 2.5rem;
+    }
+
+    .photoField {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 40rem) {
+    .panel {
+        padding-inline: 1.25rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .heading {
+        font-size: 1.5rem;
+    }
+
+    .input {
+        font-size: 1rem;
+    }
+}
