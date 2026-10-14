@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { mealTypeFromLabel } from '../config/api';
-import '../design/categoryDropdown.css';
+import { mealTypeFromLabel } from '../../config/api';
+import styles from './CategoryNav.module.css';
 
 const CATEGORIES = [
   {
@@ -55,26 +55,22 @@ export default function CategoryDropdown() {
   };
 
   return (
-    <nav className="category-dropdown" aria-label="Recipe categories">
-      <ul className="category-nav">
+    <nav className={`${styles.nav} no-print`} aria-label="Recipe categories" data-testid="category-nav">
+      <ul className={styles.list}>
         {CATEGORIES.map((category) => (
-          <li className="category-item" key={category.name} data-testid={`category-${category.type}`}>
+          <li className={styles.item} key={category.name} data-testid={`category-${category.type}`}>
             <button
               type="button"
-              className="category-dropdown-header-item"
+              className={styles.label}
               aria-haspopup="true"
               onClick={() => handleCategoryClick(category.name)}
             >
               {category.name}
             </button>
-            <ul className="category-submenu" aria-label={category.name}>
+            <ul className={styles.submenu} aria-label={category.name}>
               {category.items.map((item) => (
                 <li key={item}>
-                  <button
-                    type="button"
-                    className="category-dropdown-content-item"
-                    onClick={() => handleItemClick(item, category.type)}
-                  >
+                  <button type="button" className={styles.link} onClick={() => handleItemClick(item, category.type)}>
                     {item}
                   </button>
                 </li>
@@ -82,8 +78,8 @@ export default function CategoryDropdown() {
             </ul>
           </li>
         ))}
-        <li className="category-item" data-testid="category-about-us">
-          <Link to="/aboutUs" className="category-dropdown-header-item">
+        <li className={styles.item} data-testid="category-about-us">
+          <Link to="/aboutUs" className={styles.label}>
             About us
           </Link>
         </li>

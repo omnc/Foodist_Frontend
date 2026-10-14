@@ -1,0 +1,37 @@
+/*
+ * Scalloped edges are drawn with radial gradients so the fill colour is a CSS variable.
+ * Elements can `composes` the classes below; pseudo-elements import the @value gradients instead.
+ * Variables: --scallop-color (bump fill), --scallop-knockout (page colour around bumps).
+ */
+@value scallopSize: var(--scallop-width) var(--scallop-height);
+@value scallopRadius: calc(var(--scallop-width) / 2) var(--scallop-height);
+@value outline: 1.5px;
+
+/* Bumps rising upward from a flat base below (footer top). */
+@value scallopUp: radial-gradient(ellipse scallopRadius at 50% 100%, var(--scallop-color) calc(100% - outline), var(--color-ink) calc(100% - outline + 0.5px) calc(100% - 0.5px), transparent 100%);
+
+/* Bumps hanging down from a flat edge above (mega menu bottom). */
+@value scallopDown: radial-gradient(ellipse scallopRadius at 50% 0, var(--scallop-color) calc(100% - outline), var(--color-ink) calc(100% - outline + 0.5px) calc(100% - 0.5px), transparent 100%);
+
+/* Inverse of scallopDown: page colour fills outside the bumps so hero artwork shows inside them. */
+@value scallopKnockoutDown: radial-gradient(ellipse scallopRadius at 50% 0, transparent calc(100% - outline), var(--color-ink) calc(100% - outline + 0.5px) calc(100% - 0.5px), var(--scallop-knockout) 100%);
+
+.edge {
+    --scallop-color: var(--color-yellow);
+    --scallop-knockout: var(--color-cream);
+    height: var(--scallop-height);
+    background-repeat: repeat-x;
+    background-size: scallopSize;
+}
+
+.up {
+    background-image: scallopUp;
+}
+
+.down {
+    background-image: scallopDown;
+}
+
+.knockoutDown {
+    background-image: scallopKnockoutDown;
+}

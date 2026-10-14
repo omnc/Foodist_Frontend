@@ -22,7 +22,7 @@ test.describe('Ratings, recipe cards, my recipes (mocked API)', () => {
 
     const ratedCard = page.getByTestId(`recipe-card-${rated.id}`);
     await expect(ratedCard.getByTestId('rating-summary')).toContainText('3.5');
-    await expect(ratedCard.getByTestId('rating-summary')).toContainText('(2)');
+    await expect(ratedCard.getByTestId('rating-summary')).toHaveAttribute('aria-label', /3\.5 out of 5 from 2 ratings/);
   });
 
   test('recipe page trending cards use real ratings, never a default', async ({ page }) => {
@@ -64,9 +64,10 @@ test.describe('Ratings, recipe cards, my recipes (mocked API)', () => {
 
     await page.goto('/#/myPage');
     await expect(page.getByRole('heading', { level: 1, name: 'My Recipes' })).toBeVisible();
-    await expect(page.locator('.recipe-card')).toHaveCount(1);
-    await expect(page.locator('.recipe-card')).toContainText('My Curry');
-    await expect(page.locator('.recipe-card')).toContainText('4.0');
+    const cards = page.locator('article[data-testid^="recipe-card-"]');
+    await expect(cards).toHaveCount(1);
+    await expect(cards).toContainText('My Curry');
+    await expect(cards).toContainText('4.0');
   });
 
   test('saved list shows cards; heart unsaves and removes the card', async ({ page }) => {

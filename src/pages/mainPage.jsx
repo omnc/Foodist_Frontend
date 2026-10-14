@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/header';
-import CategoryDropdown from '../components/categoryDropdown';
+import Header from '../components/Header/Header';
+import Footer from '../components/Footer/Footer';
 import Carousel from '../components/carousel';
 import { useRecipe } from '../contexts/recipeContext';
-import { RecipeCardGrid } from '../components/recipeCard';
+import { RecipeCardGrid } from '../components/RecipeCard/RecipeCard';
 
 function MainPage() {
   const { recipes, getAllRecipes, isLoading, error } = useRecipe();
@@ -16,7 +16,6 @@ function MainPage() {
   return (
     <div>
       <Header />
-      <CategoryDropdown />
       <Carousel />
       <main id="main-content" tabIndex={-1} style={{ maxWidth: 960, margin: '1.5rem auto', padding: '0 1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -34,6 +33,7 @@ function MainPage() {
         )}
         <RecipeCardGrid recipes={recipes} />
       </main>
+      <Footer />
     </div>
   );
 }

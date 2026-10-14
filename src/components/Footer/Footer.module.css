@@ -1,0 +1,85 @@
+.footer {
+    margin-top: var(--footer-gap, 0);
+    color: var(--color-white);
+}
+
+.scallops {
+    composes: edge up from '../../styles/scallop.module.css';
+    margin-bottom: -1px;
+}
+
+.body {
+    padding-block: 4.6875rem;
+    background-color: var(--color-charcoal);
+}
+
+.inner {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    column-gap: 6.625rem;
+    align-items: start;
+    padding-right: 0.5rem;
+}
+
+.logo {
+    width: 16.5625rem;
+    height: auto;
+}
+
+.copyright {
+    margin-top: 1.375rem;
+    font-size: 0.84375rem;
+    font-weight: 500;
+}
+
+.follow,
+.links {
+    padding-top: 0.9375rem;
+}
+
+.heading,
+.links li {
+    font-size: var(--text-md);
+    font-weight: 500;
+    line-height: 1.5rem;
+}
+
+.heading {
+    margin-bottom: 1.5rem;
+}
+
+.social {
+    display: flex;
+    gap: 2rem;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8125rem;
+}
+
+.links a {
+    text-decoration: none;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 62rem) {
+    .inner {
+        grid-template-columns: 1fr 1fr;
+        row-gap: var(--space-6);
+    }
+
+    .brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 30rem) {
+    .logo {
+        width: 11rem;
+    }
+}
