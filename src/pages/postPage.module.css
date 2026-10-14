@@ -19,41 +19,32 @@
     pointer-events: none;
 }
 
+/* Look shared with the other form panels; the extra top padding leaves room for the mascot. */
 .panel {
-    padding: 7.4375rem 4.125rem 3.5rem;
-    border: var(--border);
-    border-radius: 3.125rem;
-    background-color: var(--color-white);
+    composes: panel from '../styles/formPanel.module.css';
+    --panel-top: 7.4375rem;
 }
+
+.title { composes: title from '../styles/formPanel.module.css'; }
+.error { composes: error from '../styles/formPanel.module.css'; }
+.heading { composes: heading from '../styles/formPanel.module.css'; }
+.fieldLabel { composes: fieldLabel from '../styles/formPanel.module.css'; }
+.field { composes: field from '../styles/formPanel.module.css'; }
+.input { composes: input from '../styles/formPanel.module.css'; }
+.textarea { composes: textarea from '../styles/formPanel.module.css'; }
 
 /* Intro: page title on the left, lead text on the right */
 .intro {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 31.25rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 33.375rem);
     align-items: center;
     gap: 2rem;
 }
 
-.title {
-    font-size: 3.2rem;
-    font-weight: 700;
-    line-height: 1.1;
-}
-
 .introText {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 500;
-    line-height: 1.45;
-}
-
-.error {
-    margin-top: var(--space-5);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--color-error);
-    border-radius: var(--radius-field-lg);
-    background-color: #fdecec;
-    color: var(--color-error);
-    font-weight: 600;
+    line-height: 1.2;
 }
 
 .form {
@@ -61,53 +52,6 @@
     flex-direction: column;
     gap: 6.5rem;
     margin-top: 6.4375rem;
-}
-
-/* Section and field headings */
-.heading {
-    font-size: 2.3rem;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-.fieldLabel {
-    font-size: 1.625rem;
-    font-weight: 600;
-    line-height: 1.2;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.78rem;
-    min-width: 0;
-}
-
-.input {
-    width: 100%;
-    min-height: 3.4375rem;
-    padding: 0 1rem;
-    border: 1px solid var(--color-field-border);
-    border-radius: var(--radius-field-lg);
-    background-color: var(--color-white);
-    color: var(--color-ink);
-    font-family: var(--font-body);
-    font-size: 1.25rem;
-}
-
-.input::placeholder {
-    color: #5c5c5c;
-}
-
-.input:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 1px;
-}
-
-.textarea {
-    min-height: 9.75rem;
-    padding: 1rem;
-    resize: vertical;
 }
 
 /* Title, description and thumbnail */
@@ -394,7 +338,7 @@
     gap: 2rem;
 }
 
-.stepText {
+.input.stepText {
     min-height: 15.1875rem;
     padding: 1rem;
     resize: vertical;

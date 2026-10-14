@@ -8,6 +8,8 @@ import SignInPage from './pages/signInPage.jsx';
 import ForgotPasswordPage from './pages/forgotPasswordPage.jsx';
 import ChangePasswordPage from './pages/changePasswordPage.jsx';
 import MyPage from './pages/myPage.jsx';
+import EditProfilePage from './pages/editProfilePage.jsx';
+import MyRecipesPage from './pages/myRecipesPage.jsx';
 import PostPage from './pages/postPage.jsx';
 import PostPublishPage from './pages/postPublishPage.jsx';
 import SearchPage from './pages/searchPage.jsx';
@@ -48,6 +50,8 @@ function App() {
             <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
             <Route path="/changePassword" element={<ChangePasswordPage />} />
             <Route path="/myPage" element={<MyPage />} />
+            <Route path="/editProfile" element={<EditProfilePage />} />
+            <Route path="/myRecipes" element={<MyRecipesPage />} />
             <Route path="/postPage" element={<PostPage />} />
             <Route path="/recipe/:id" element={<PostPublishPage />} />
             <Route path="/search" element={<SearchPage />} />

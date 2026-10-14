@@ -3,7 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import PageLayout from '../components/PageLayout/PageLayout';
 import RecipeCard, { RecipeCardGrid } from '../components/RecipeCard/RecipeCard';
 import { SearchIcon, CloseIcon } from '../components/Icon/Icon';
+import SortSelect from '../components/SortSelect/SortSelect';
 import { useRecipe } from '../contexts/recipeContext';
+import { sortRecipes } from '../lib/sortRecipes';
 import styles from './recipeListing.module.css';
 
 const TABS = [
@@ -15,13 +17,6 @@ const TABS = [
   { label: 'Desserts', value: 'DESSERT' },
   { label: 'Drinks', value: 'DRINK' },
 ];
-
-function sortRecipes(recipes, sort) {
-  const next = [...recipes];
-  if (sort === 'rating') return next.sort((a, b) => Number(b.averageRating || 0) - Number(a.averageRating || 0));
-  if (sort === 'title') return next.sort((a, b) => String(a.title).localeCompare(String(b.title)));
-  return next.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-}
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -137,14 +132,7 @@ function SearchPage() {
         <div className={styles.resultMeta}>
           <p>Total {recipes.length} recipes</p>
           {isMealPage && (
-            <label className={styles.sortCompact}>
-              <span className="visually-hidden">Sort recipes</span>
-              <select aria-label="Sort recipes" value={sort} onChange={(event) => setSort(event.target.value)}>
-                <option value="newest">Sort by</option>
-                <option value="rating">Rating</option>
-                <option value="title">Title</option>
-              </select>
-            </label>
+            <SortSelect value={sort} onChange={setSort} />
           )}
         </div>
 

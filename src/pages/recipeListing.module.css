@@ -80,8 +80,7 @@
     white-space: nowrap;
 }
 
-.sort select,
-.sortCompact select {
+.sort select {
     border: 0;
     background: transparent;
     font: inherit;
@@ -142,12 +141,6 @@
 
 .resultMeta p { margin: 0; font-weight: 600; }
 
-.sortCompact {
-    padding: 0.25rem 0.75rem;
-    border: var(--border);
-    border-radius: var(--radius-pill);
-    background-color: var(--color-white);
-}
 
 .results :global(ul) { gap: 1.875rem; }
 .error { color: var(--color-error); }
