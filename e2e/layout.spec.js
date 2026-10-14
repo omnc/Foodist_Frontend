@@ -103,6 +103,7 @@ test.describe('Layout regressions (mocked API)', () => {
     await expect(page).toHaveURL(/#\/search\?mealtype=SIDEDISH$/);
 
     await page.goto('/#/');
+    await page.getByTestId('category-cuisine').getByRole('button', { name: 'Cuisines' }).focus();
     await page.getByTestId('category-cuisine').getByRole('button', { name: 'Korean' }).focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/#\/search\?q=Korean$/);
