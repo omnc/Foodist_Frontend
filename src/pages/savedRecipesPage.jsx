@@ -4,6 +4,7 @@ import PageLayout from '../components/PageLayout/PageLayout';
 import { useAuth } from '../contexts/authContext';
 import { apiFetch, authHeaders, describeApiError } from '../lib/apiClient';
 import { RecipeCardGrid } from '../components/RecipeCard/RecipeCard';
+import styles from './savedRecipesPage.module.css';
 
 function SavedRecipesPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -44,14 +45,15 @@ function SavedRecipesPage() {
 
   if (authLoading || loading) {
     return (
-      <PageLayout mainClassName="page-container page-main">
-        <p>Loading saved recipes…</p>
+      <PageLayout mainClassName={styles.main}>
+        <div className={styles.container}><p>Loading saved recipes…</p></div>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout mainClassName="page-container page-main">
+    <PageLayout mainClassName={styles.main}>
+      <div className={styles.container}>
         <h1>Saved recipes</h1>
         {error && (
           <p role="alert" style={{ color: 'crimson' }}>
@@ -63,6 +65,7 @@ function SavedRecipesPage() {
           recipes={items.filter((entry) => entry.recipe).map((entry) => entry.recipe)}
           onUnsaved={(recipeId) => setItems((prev) => prev.filter((entry) => Number(entry.recipe?.id) !== Number(recipeId)))}
         />
+      </div>
     </PageLayout>
   );
 }
