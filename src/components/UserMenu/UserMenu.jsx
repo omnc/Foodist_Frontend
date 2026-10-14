@@ -53,6 +53,7 @@ export default function UserMenu() {
               <MenuItem onClick={() => go('/myPage')}>Profile</MenuItem>
               <MenuItem onClick={() => go('/postPage')}>Add Recipe</MenuItem>
               <MenuItem onClick={() => go('/saved')}>Saved recipes</MenuItem>
+              <MenuItem onClick={() => go('/changePassword')}>Change password</MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </>
           ) : (

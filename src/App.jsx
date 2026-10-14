@@ -5,6 +5,8 @@ import { RecipeProvider } from './contexts/recipeContext.jsx';
 import MainPage from './pages/mainPage.jsx';
 import LogInPage from './pages/logInPage.jsx';
 import SignInPage from './pages/signInPage.jsx';
+import ForgotPasswordPage from './pages/forgotPasswordPage.jsx';
+import ChangePasswordPage from './pages/changePasswordPage.jsx';
 import MyPage from './pages/myPage.jsx';
 import PostPage from './pages/postPage.jsx';
 import PostPublishPage from './pages/postPublishPage.jsx';
@@ -43,6 +45,8 @@ function App() {
             <Route path="/" element={<MainPage />} />
             <Route path="/login" element={<LogInPage />} />
             <Route path="/signin" element={<SignInPage />} />
+            <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
+            <Route path="/changePassword" element={<ChangePasswordPage />} />
             <Route path="/myPage" element={<MyPage />} />
             <Route path="/postPage" element={<PostPage />} />
             <Route path="/recipe/:id" element={<PostPublishPage />} />
