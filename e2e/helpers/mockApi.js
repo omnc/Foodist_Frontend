@@ -90,6 +90,34 @@ export async function installMockApi(page) {
       );
     }
 
+    if (method === 'POST' && path === '/auth/change-password') {
+      if (!authedUserId) return route.fulfill(json({ error: 'Unauthorized' }, 401));
+      const body = req.postDataJSON() || {};
+      const user = state.users.find((u) => u.id === authedUserId);
+      if (!user || user.password !== body.currentPassword) {
+        return route.fulfill(json({ error: 'Current password is incorrect' }, 401));
+      }
+      if (!body.newPassword || body.newPassword.length < 8) {
+        return route.fulfill(json({ error: 'New password must be at least 8 characters' }, 400));
+      }
+      user.password = body.newPassword;
+      return route.fulfill(json({ message: 'Password updated successfully' }));
+    }
+
+    const profileMatch = path.match(/^\/auth\/(\d+)$/);
+    if (method === 'PUT' && profileMatch) {
+      if (!authedUserId || authedUserId !== Number(profileMatch[1])) {
+        return route.fulfill(json({ error: 'Forbidden' }, 403));
+      }
+      const user = state.users.find((u) => u.id === authedUserId);
+      const body = req.postDataJSON() || {};
+      for (const key of ['username', 'bio', 'pfpUrl']) {
+        if (key in body) user[key] = body[key];
+      }
+      user.updatedAt = new Date().toISOString();
+      return route.fulfill(json(publicUser(user)));
+    }
+
     if (method === 'POST' && path === '/auth/logout') {
       return route.fulfill(json({ message: 'Logged out' }));
     }

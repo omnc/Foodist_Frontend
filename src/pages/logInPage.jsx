@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext';
-import { useNavigate } from 'react-router-dom';
+import AuthLayout from '../components/AuthLayout/AuthLayout';
+import FormField from '../components/FormField/FormField';
+import Checkbox from '../components/Checkbox/Checkbox';
+import Button from '../components/Button/Button';
+import form from '../styles/authForm.module.css';
+
+const REMEMBERED_EMAIL_KEY = 'foodist_remembered_email';
 
 function LogInPage() {
-  const [email, setEmail] = useState('');
+  const rememberedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY) || '';
+  const [email, setEmail] = useState(rememberedEmail);
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(Boolean(rememberedEmail));
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { login, isLoading } = useAuth();
@@ -22,6 +31,8 @@ function LogInPage() {
     try {
       const result = await login(email, password);
       if (result.success) {
+        if (remember) localStorage.setItem(REMEMBERED_EMAIL_KEY, email);
+        else localStorage.removeItem(REMEMBERED_EMAIL_KEY);
         navigate('/');
       } else {
         setError(result.error || 'An unknown error occurred');
@@ -32,48 +43,47 @@ function LogInPage() {
   };
 
   return (
-    <main id="main-content" tabIndex={-1}>
-      <h1>Log In</h1>
-      {error && (
-        <p role="alert" data-testid="login-error" style={{ color: 'crimson' }}>
-          {error}
-        </p>
-      )}
-      <form onSubmit={handleLogin} data-testid="login-form">
-        <label htmlFor="email">Email</label>
-        <input
+    <AuthLayout eyebrow="Log in" title="Welcome back!" tone="green" character="leek">
+      <form onSubmit={handleLogin} data-testid="login-form" className={form.form}>
+        <FormField
           type="email"
-          id="email"
+          label="Email address"
           data-testid="login-email"
           autoComplete="email"
           onChange={(e) => setEmail(e.target.value)}
           value={email}
-          placeholder="Email"
+          placeholder="Enter email address"
           required
           disabled={submitting}
+          invalid={Boolean(error)}
         />
-        <label htmlFor="password">Password</label>
-        <input
+        <FormField
           type="password"
-          id="password"
+          label="Password"
           data-testid="login-password"
           autoComplete="current-password"
           onChange={(e) => setPassword(e.target.value)}
           value={password}
-          placeholder="Password"
+          placeholder="Enter password"
           required
           disabled={submitting}
+          error={error}
+          errorTestId="login-error"
         />
-        <button type="submit" data-testid="login-submit" disabled={submitting}>
-          {submitting ? 'Logging in…' : 'Log In'}
-        </button>
+        <div className={form.metaRow}>
+          <Checkbox label="Remember me" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+          <Link to="/forgotPassword" className={form.smallLink}>
+            Forgot password?
+          </Link>
+        </div>
+        <Button type="submit" fullWidth className={form.submit} data-testid="login-submit" disabled={submitting}>
+          {submitting ? 'Logging in…' : 'Log in'}
+        </Button>
       </form>
-      <div>
-        <button type="button" onClick={() => navigate('/signin')}>
-          Don't have an account? Sign In
-        </button>
-      </div>
-    </main>
+      <p className={form.switch}>
+        Don't have an account? <Link to="/signin">Sign up</Link>
+      </p>
+    </AuthLayout>
   );
 }
 

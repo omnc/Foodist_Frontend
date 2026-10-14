@@ -3,6 +3,8 @@ import { apiFetch, authHeaders, setStoredCsrf } from '../lib/apiClient';
 
 const AuthContext = createContext(null);
 
+const pendingUsernameKey = (email) => `foodist_pending_username:${String(email).trim().toLowerCase()}`;
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -80,6 +82,7 @@ export const AuthProvider = ({ children }) => {
         ...data.user,
       });
       setError(null);
+      await applyPendingUsername(email, data.token, data.user?.id);
       return { success: true, user: data.user };
     } catch (err) {
       setError(err.message);
@@ -87,7 +90,62 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, password) => {
+  /** Sign-up collects a username before any session exists, so it is saved on the first login. */
+  const applyPendingUsername = async (email, token, userId) => {
+    const key = pendingUsernameKey(email);
+    const username = localStorage.getItem(key);
+    if (!username || !userId) return;
+    localStorage.removeItem(key);
+    const result = await sendProfile(userId, token, { username });
+    if (result.success) setUser((current) => (current ? { ...current, ...result.user } : current));
+  };
+
+  const sendProfile = async (userId, token, fields) => {
+    try {
+      const response = await apiFetch(`/auth/${userId}`, {
+        method: 'PUT',
+        headers: authHeaders({ token, json: true, mutating: true }),
+        body: JSON.stringify(fields),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        return { success: false, error: data.error || data.message || 'Unable to update profile' };
+      }
+      return { success: true, user: data };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const updateProfile = async (fields) => {
+    if (!user?.id) return { success: false, error: 'Please log in first' };
+    const result = await sendProfile(user.id, localStorage.getItem('token'), fields);
+    if (result.success) setUser((current) => ({ ...current, ...result.user }));
+    return result;
+  };
+
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const response = await apiFetch('/auth/change-password', {
+        method: 'POST',
+        headers: authHeaders({ token: localStorage.getItem('token'), json: true, mutating: true }),
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || data.message || 'Unable to change password',
+          statuscode: response.status,
+        };
+      }
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const register = async (email, password, username) => {
     try {
       const response = await apiFetch('/auth/register', {
         method: 'POST',
@@ -106,6 +164,8 @@ export const AuthProvider = ({ children }) => {
       }
 
       const { password: _ignored, ...safeUser } = data || {};
+      const cleanUsername = username?.trim();
+      if (cleanUsername) localStorage.setItem(pendingUsernameKey(email), cleanUsername);
       setError(null);
       return { success: true, user: safeUser };
     } catch (err) {
@@ -134,6 +194,8 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateProfile,
+    changePassword,
     isAuthenticated: !!user,
   };
 

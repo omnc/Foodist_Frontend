@@ -1,0 +1,122 @@
+/*
+ * Measured from the 1512px frames: logo 60px from the left / 47px from the top, form column starts at x=133
+ * and is 508px wide, headline block starts 112px below the logo. The scalloped panel is a 74px-deep
+ * half-ellipse bump every 163px; the red sign-up panel is flat and a little wider.
+ */
+.page {
+    --panel-width: 47%;
+    --bump-depth: 74px;
+    --bump-height: 163.2px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--panel-width);
+    min-height: 100vh;
+    background-color: var(--color-cream);
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    padding: 2.9375rem 1rem 4rem clamp(1.5rem, 4vw, 3.75rem);
+}
+
+.logo {
+    align-self: flex-start;
+    line-height: 0;
+}
+
+.logo img {
+    width: 12.1875rem;
+    height: auto;
+}
+
+.content {
+    width: min(31.75rem, 100%);
+    margin: 6.6875rem 0 0 clamp(0rem, 4.6vw, 4.375rem);
+}
+
+.eyebrow {
+    margin: 0;
+    font-size: 1.5625rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.title {
+    margin: 0.6875rem 0 4.0625rem;
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+/* Right-hand panel */
+.panel {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 38vh;
+    background-color: var(--panel-color);
+}
+
+.green {
+    --panel-color: var(--color-green);
+}
+
+.red {
+    --panel-color: var(--color-red);
+    --panel-width: 49%;
+}
+
+.scalloped::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: var(--bump-depth);
+    background-image: radial-gradient(
+        ellipse var(--bump-depth) calc(var(--bump-height) / 2) at 100% 50%,
+        var(--panel-color) calc(100% - 1.5px),
+        var(--color-ink) calc(100% - 1px),
+        var(--color-ink) calc(100% - 0.25px),
+        transparent 100%
+    );
+    background-position: 0 -2px;
+    background-size: var(--bump-depth) var(--bump-height);
+    background-repeat: repeat-y;
+}
+
+.leek {
+    width: 10.875rem;
+    height: auto;
+    max-width: 60%;
+}
+
+.tomato {
+    width: 21.8125rem;
+    height: auto;
+    max-width: 70%;
+}
+
+@media (max-width: 48rem) {
+    .page {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .panel {
+        display: none;
+    }
+
+    .main {
+        padding-inline: 1.5rem;
+    }
+
+    .content {
+        margin: 3rem 0 0;
+    }
+
+    .title {
+        margin-bottom: 2rem;
+        font-size: 2.25rem;
+    }
+}
