@@ -28,7 +28,7 @@ test.describe('Auth + recipe create/persist + save (mocked API)', () => {
 
     // Reload — /auth/me mock should restore session without crash
     await page.reload();
-    await expect(page.getByRole('heading', { level: 2, name: 'Recent recipes' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Taste of summer' })).toBeVisible();
   });
 
   test('login failure shows alert and does not navigate', async ({ page }) => {

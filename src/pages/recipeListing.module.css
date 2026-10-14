@@ -1,0 +1,178 @@
+.main {
+    min-height: 101rem;
+    padding: 3.375rem var(--page-gutter) 8rem;
+}
+
+.mealMain {
+    min-height: 209rem;
+}
+
+.container {
+    width: min(var(--content-width), 100%);
+    margin-inline: auto;
+}
+
+.topRow {
+    display: grid;
+    grid-template-columns: 14.5rem minmax(18rem, 1fr) auto;
+    align-items: center;
+    gap: 2.75rem;
+}
+
+.topRow h1 {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+.mealTop {
+    display: block;
+}
+
+.searchForm {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 3.0625rem;
+    border: var(--border);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-white);
+    overflow: hidden;
+}
+
+.searchForm input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0 1.25rem;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+}
+
+.searchForm input::-webkit-search-cancel-button { display: none; }
+
+.clear,
+.searchButton {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.clear { border-right: 1px solid #b5b5b5; }
+.searchButton { margin-right: 0.25rem; }
+
+.sort {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.3125rem 0.625rem 0.3125rem 0.875rem;
+    border: var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.sort select,
+.sortCompact select {
+    border: 0;
+    background: transparent;
+    font: inherit;
+}
+
+.intro {
+    max-width: 49rem;
+    margin: -2rem 0 3.5rem 25.5rem;
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+.featureGrid {
+    display: grid;
+    grid-template-columns: 2.075fr 1fr;
+    gap: 1.875rem;
+    margin: 3.5rem 0 4rem;
+}
+
+.featureSide {
+    display: grid;
+    gap: 3.125rem;
+}
+
+.featureGrid :global([data-testid^='recipe-card-']) :global(a) { padding: 1.875rem 1.5rem 1.6875rem 1.8125rem; }
+.featureLarge :global(div[class*='media']) { aspect-ratio: 754 / 682; }
+.featureLarge :global(div[class*='body']) { padding-top: 2rem; }
+.featureSide :global(div[class*='media']) { aspect-ratio: 336 / 312; }
+
+.tabs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+    border-bottom: var(--border);
+    overflow-x: auto;
+}
+
+.tabs button {
+    flex: none;
+    padding: 0 0 0.75rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+
+.tabs .activeTab { border-bottom-color: var(--color-red); }
+
+.resultMeta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.resultMeta p { margin: 0; font-weight: 600; }
+
+.sortCompact {
+    padding: 0.25rem 0.75rem;
+    border: var(--border);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-white);
+}
+
+.results :global(ul) { gap: 1.875rem; }
+.error { color: var(--color-error); }
+
+/* Search results begin directly below the controls, as in design-08. */
+.topRow + .resultMeta { margin-top: 0.5rem; }
+
+@media (max-width: 62rem) {
+    .main { min-height: 75rem; }
+    .topRow { grid-template-columns: 1fr auto; }
+    .topRow h1 { grid-column: 1 / -1; }
+    .intro { margin: 1.5rem 0 2rem; }
+    .featureGrid { grid-template-columns: 1.4fr 1fr; }
+}
+
+@media (max-width: 48rem) {
+    .topRow { grid-template-columns: 1fr; gap: 1rem; }
+    .topRow h1 { grid-column: auto; }
+    .sort { justify-self: start; }
+    .featureGrid { grid-template-columns: 1fr; }
+    .tabs { justify-content: flex-start; }
+}
+
+@media (max-width: 40rem) {
+    .main { padding-block: 2.5rem 5rem; }
+    .topRow h1 { font-size: 2.25rem; }
+    .featureSide { gap: 1.875rem; }
+}
