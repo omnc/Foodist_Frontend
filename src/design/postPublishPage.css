@@ -2,7 +2,6 @@
 .publish-page {
     background-color: #ffffff;
     min-height: 100vh;
-    padding-top: 80px;
 }
 
 /* Loading & Error States */
@@ -864,4 +863,12 @@
     font-size: 1.05rem;
     font-weight: 600;
     margin: 0 0 8px;
+}
+
+@media print {
+    .action-buttons,
+    .publish-sidebar,
+    .comment-form {
+        display: none !important;
+    }
 }

@@ -11,7 +11,7 @@ import PostPublishPage from './pages/postPublishPage.jsx';
 import SearchPage from './pages/searchPage.jsx';
 import SavedRecipesPage from './pages/savedRecipesPage.jsx';
 import AboutUsPage from './pages/aboutUsPage.jsx';
-import './index.css';
+import './styles/global.css';
 
 function SkipLink() {
   return (

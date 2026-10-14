@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/header';
+import PageLayout from '../components/PageLayout/PageLayout';
 import { useAuth } from '../contexts/authContext';
 import { apiFetch, authHeaders, describeApiError } from '../lib/apiClient';
-import { RecipeCardGrid } from '../components/recipeCard';
+import { RecipeCardGrid } from '../components/RecipeCard/RecipeCard';
 
 function SavedRecipesPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -44,17 +44,14 @@ function SavedRecipesPage() {
 
   if (authLoading || loading) {
     return (
-      <div>
-        <Header />
-        <p className="page-content">Loading saved recipes…</p>
-      </div>
+      <PageLayout mainClassName="page-container page-main">
+        <p>Loading saved recipes…</p>
+      </PageLayout>
     );
   }
 
   return (
-    <div>
-      <Header />
-      <main id="main-content" tabIndex={-1} className="page-content">
+    <PageLayout mainClassName="page-container page-main">
         <h1>Saved recipes</h1>
         {error && (
           <p role="alert" style={{ color: 'crimson' }}>
@@ -66,8 +63,7 @@ function SavedRecipesPage() {
           recipes={items.filter((entry) => entry.recipe).map((entry) => entry.recipe)}
           onUnsaved={(recipeId) => setItems((prev) => prev.filter((entry) => Number(entry.recipe?.id) !== Number(recipeId)))}
         />
-      </main>
-    </div>
+    </PageLayout>
   );
 }
 

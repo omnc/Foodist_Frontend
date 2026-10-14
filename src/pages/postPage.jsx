@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext';
 import { useRecipe } from '../contexts/recipeContext';
 import { MEAL_TYPES } from '../config/api';
-import Header from '../components/header';
+import Header from '../components/Header/Header';
+import Footer from '../components/Footer/Footer';
 import '../design/postPage.css';
 
 const emptyIngredient = () => ({ name: '', amount: '', unit: '' });
@@ -477,6 +478,7 @@ function PostPage() {
                     </div>
                 </form>
             </div>
+            <Footer />
         </div>
     );
 }

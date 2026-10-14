@@ -1,0 +1,117 @@
+/* Reset, base typography and a few shared utilities. Component styles live beside their components. */
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure {
+    margin: 0;
+}
+
+ul,
+ol {
+    padding: 0;
+    list-style: none;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-width: 20rem;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.4;
+    color: var(--color-ink);
+    background-color: var(--color-cream);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -100px;
+    z-index: 1000;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-field);
+    background: var(--color-charcoal);
+    color: var(--color-white);
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    top: 0.75rem;
+}
+
+/* Centered content column shared by every page. */
+.page-container {
+    width: min(var(--content-width), 100% - 2 * var(--page-gutter));
+    margin-inline: auto;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Vertical rhythm for pages that have not got their own layout module yet. */
+.page-main {
+    padding-block: var(--space-7) var(--space-9);
+}

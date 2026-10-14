@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/authContext';
-import { useRecipe } from '../contexts/recipeContext';
-import { MEAL_TYPES } from '../config/api';
-import RatingSummary from './ratingSummary';
-import '../design/recipeCard.css';
+import { useAuth } from '../../contexts/authContext';
+import { useRecipe } from '../../contexts/recipeContext';
+import { MEAL_TYPES } from '../../config/api';
+import RatingSummary from '../RatingSummary/RatingSummary';
+import { HeartIcon } from '../Icon/Icon';
+import styles from './RecipeCard.module.css';
 
-const mealTypeLabel = (value) => MEAL_TYPES.find((mt) => mt.value === value)?.label || value || '';
+export const mealTypeLabel = (value) => MEAL_TYPES.find((mt) => mt.value === value)?.label || value || '';
 
-/** Card layout: image with heart overlay, meal type, title, star + average rating. */
-export default function RecipeCard({ recipe, onUnsaved }) {
+/**
+ * Recipe card: image with save heart, meal type, title and rating.
+ * `size="large"` is the featured variant used by the category page highlight.
+ */
+export default function RecipeCard({ recipe, onUnsaved, size = 'regular' }) {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { savedIds, saveRecipe, unsaveRecipe } = useRecipe();
@@ -38,30 +42,30 @@ export default function RecipeCard({ recipe, onUnsaved }) {
   };
 
   return (
-    <article className="recipe-card" data-testid={`recipe-card-${recipe.id}`}>
-      <Link to={`/recipe/${recipe.id}`} className="recipe-card-link">
-        <div className="recipe-card-image">
-          {image ? <img src={image} alt={recipe.title} /> : <div className="recipe-card-placeholder">No image</div>}
+    <article className={`${styles.card} ${size === 'large' ? styles.large : ''}`} data-testid={`recipe-card-${recipe.id}`}>
+      <Link to={`/recipe/${recipe.id}`} className={styles.link}>
+        <div className={styles.media}>
+          {image ? <img src={image} alt={recipe.title} className={styles.image} /> : <div className={styles.placeholder}>No image</div>}
           <button
             type="button"
-            className={`recipe-card-heart ${isSaved ? 'saved' : ''}`}
+            className={styles.heart}
             onClick={toggleSave}
             disabled={busy}
             aria-pressed={isSaved}
             aria-label={isSaved ? `Remove ${recipe.title} from saved recipes` : `Save ${recipe.title}`}
             data-testid={`recipe-card-heart-${recipe.id}`}
           >
-            {isSaved ? '♥' : '♡'}
+            <HeartIcon filled={isSaved} size={44} />
           </button>
         </div>
-        <div className="recipe-card-body">
-          <span className="recipe-card-mealtype">{mealTypeLabel(recipe.mealtype)}</span>
-          <h3 className="recipe-card-title">{recipe.title}</h3>
+        <div className={styles.body}>
+          <span className={styles.mealType}>{mealTypeLabel(recipe.mealtype)}</span>
+          <h3 className={styles.title}>{recipe.title}</h3>
           <RatingSummary averageRating={recipe.averageRating} ratingCount={recipe.ratingCount} />
         </div>
       </Link>
       {error && (
-        <p role="alert" className="recipe-card-error">
+        <p role="alert" className={styles.error}>
           {error}
         </p>
       )}
@@ -71,7 +75,7 @@ export default function RecipeCard({ recipe, onUnsaved }) {
 
 export function RecipeCardGrid({ recipes, onUnsaved }) {
   return (
-    <ul className="recipe-card-grid">
+    <ul className={styles.grid}>
       {recipes.map((recipe) => (
         <li key={recipe.id}>
           <RecipeCard recipe={recipe} onUnsaved={onUnsaved} />

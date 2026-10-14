@@ -22,6 +22,16 @@ SPA for [Foodist](https://foodist-frontend.pages.dev/) — React 19 + Vite + Rea
 - Dropping Bearer/`localStorage` entirely after cookie path verified in staging
 - Optional Playwright profile against local Wrangler (backend `test:local-d1` covers API)
 
+## Styling
+
+Styles follow the designer's PNG exports (1512px frames).
+
+- `src/styles/tokens.css` — palette, type scale, spacing, radii, layout and scallop sizes. Change a colour or size here.
+- `src/styles/global.css` — reset, body typography, focus ring, `.page-container`, `.visually-hidden` and other shared utilities.
+- `src/styles/scallop.module.css` — scalloped edges (hero, footer, mega menu) drawn with gradients; set `--scallop-color`.
+- `src/components/<Name>/<Name>.jsx` + `<Name>.module.css` — each component owns its CSS Module. Shared pieces: `Button` (`variant`: primary / outline / text), `Icon`, `Header`, `CategoryNav`, `Footer`, `PageLayout`, `RecipeCard`, `RatingSummary`.
+- Fonts: Figtree (headings/body, nearest match to the design's geometric sans) and Inter (a few text blocks), loaded in `index.html`.
+
 ## Setup
 
 ```bash

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import Header from '../components/header';
+import PageLayout from '../components/PageLayout/PageLayout';
 import { useRecipe } from '../contexts/recipeContext';
 import { MEAL_TYPES } from '../config/api';
-import { RecipeCardGrid } from '../components/recipeCard';
+import { RecipeCardGrid } from '../components/RecipeCard/RecipeCard';
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,9 +30,7 @@ function SearchPage() {
   };
 
   return (
-    <div>
-      <Header />
-      <main id="main-content" tabIndex={-1} className="page-content">
+    <PageLayout mainClassName="page-container page-main">
         <h1>Find recipes</h1>
         <form onSubmit={onSubmit} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
           <input
@@ -79,8 +77,7 @@ function SearchPage() {
         <button type="button" onClick={() => navigate('/')}>
           Back to home
         </button>
-      </main>
-    </div>
+    </PageLayout>
   );
 }
 

@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext';
 import { apiFetch, authHeaders, describeApiError } from '../lib/apiClient';
-import Header from '../components/header';
-import { RecipeCardGrid } from '../components/recipeCard';
-import '../design/myPage.css';
+import PageLayout from '../components/PageLayout/PageLayout';
+import { RecipeCardGrid } from '../components/RecipeCard/RecipeCard';
 
 function MyPage() {
     const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -46,9 +45,7 @@ function MyPage() {
     }
 
     return (
-        <div>
-            <Header />
-            <main id="main-content" tabIndex={-1} className="myRecipes">
+        <PageLayout mainClassName="page-container page-main">
                 <h1>My Recipes</h1>
                 {authLoading || loading ? (
                     <p>Loading recipes...</p>
@@ -61,8 +58,7 @@ function MyPage() {
                 ) : (
                     <RecipeCardGrid recipes={recipes} />
                 )}
-            </main>
-        </div>
+        </PageLayout>
     );
 }
 
