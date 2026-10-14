@@ -1,0 +1,52 @@
+.stepper {
+    display: grid;
+    grid-template-columns: 3.1875rem minmax(0, 1fr) 3.1875rem;
+    align-items: stretch;
+    height: 3.4375rem;
+    border-radius: var(--radius-field-lg, 0.625rem);
+    background-color: #f6f6f6;
+}
+
+.button {
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: none;
+    color: #3d3d3d;
+    cursor: pointer;
+}
+
+.button:disabled {
+    color: #8a8a8a;
+    cursor: not-allowed;
+}
+
+.button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+    border-radius: var(--radius-field-lg, 0.625rem);
+}
+
+.input {
+    min-width: 0;
+    border: 1px solid var(--color-field-border);
+    border-radius: var(--radius-field-lg, 0.625rem);
+    background-color: var(--color-white);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    text-align: center;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+.input:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 1px;
+}
