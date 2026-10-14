@@ -71,7 +71,7 @@ test.describe('Ingredient groups on the post page (mocked API)', () => {
     expect(JSON.parse(multipartField(raw, 'ingredients')).map((i) => i.name)).toEqual(['Tomato', '12 Lasagne sheets']);
 
     await expect(page.getByTestId('recipe-title')).toHaveText('Lasagne');
-    const headings = page.locator('.ingredient-group-heading');
+    const headings = page.getByTestId('ingredient-group-heading');
     await expect(headings).toHaveText(['For the sauce', 'For the pasta']);
     await expect(page.getByTestId('recipe-ingredient-group-0')).toContainText('Tomato');
     await expect(page.getByTestId('recipe-ingredient-group-1')).toContainText('Lasagne sheets');

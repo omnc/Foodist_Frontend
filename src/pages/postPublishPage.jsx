@@ -3,10 +3,14 @@ import { useRecipe } from '../contexts/recipeContext';
 import { useAuth } from '../contexts/authContext';
 import { apiFetch, authHeaders, describeApiError } from '../lib/apiClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import Header from '../components/Header/Header';
-import Footer from '../components/Footer/Footer';
-import RatingSummary from '../components/RatingSummary/RatingSummary';
-import '../design/postPublishPage.css';
+import PageLayout from '../components/PageLayout/PageLayout';
+import Button from '../components/Button/Button';
+import Checkbox from '../components/Checkbox/Checkbox';
+import Avatar from '../components/Avatar/Avatar';
+import StarRating from '../components/StarRating/StarRating';
+import RecipeCard, { mealTypeLabel } from '../components/RecipeCard/RecipeCard';
+import { ShareIcon, PrintIcon, SaveHeartIcon, StarIcon } from '../components/Icon/Icon';
+import styles from './postPublishPage.module.css';
 
 function PostPublishPage() {
     const { id } = useParams();
@@ -155,61 +159,31 @@ function PostPublishPage() {
         }
     };
 
+    const formatDate = (value) =>
+        new Date(value).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
     const getLevelText = (level) => {
         const levels = ['Easy', 'Medium', 'Hard', 'Expert', 'Master'];
         return levels[level - 1] || 'Easy';
     };
 
-    const getMealTypeDisplay = (mealType) => {
-        if (!mealType) return 'Meal';
-        return mealType.charAt(0) + mealType.slice(1).toLowerCase();
-    };
-
-    const renderStars = (rating) => {
-        if (rating === null || rating === undefined || Number.isNaN(Number(rating))) {
-            return <span className="rating-empty">No ratings yet</span>;
-        }
-        const numeric = Number(rating);
-        const stars = [];
-        const fullStars = Math.floor(numeric);
-        const hasHalf = numeric % 1 >= 0.5;
-        
-        for (let i = 0; i < 5; i++) {
-            if (i < fullStars) {
-                stars.push(<span key={i} className="star filled">★</span>);
-            } else if (i === fullStars && hasHalf) {
-                stars.push(<span key={i} className="star half">★</span>);
-            } else {
-                stars.push(<span key={i} className="star empty">☆</span>);
-            }
-        }
-        return stars;
-    };
-
     if (isLoading) {
         return (
-            <div className="publish-page">
-                <Header />
-                <div className="publish-loading">
-                    <div className="loading-spinner"></div>
-                    <p>Loading recipe...</p>
-                </div>
-            </div>
+            <PageLayout mainClassName={styles.main}>
+                <p className={styles.status} role="status">Loading recipe...</p>
+            </PageLayout>
         );
     }
 
     if (error || !currentRecipe) {
         return (
-            <div className="publish-page">
-                <Header />
-                <div className="publish-error">
-                    <h2>Recipe not found</h2>
+            <PageLayout mainClassName={styles.main}>
+                <div className={styles.status}>
+                    <h1 className={styles.statusTitle}>Recipe not found</h1>
                     <p>{error || 'The recipe you are looking for does not exist.'}</p>
-                    <button onClick={() => navigate('/')} className="back-btn">
-                        Back to Home
-                    </button>
+                    <Button onClick={() => navigate('/')}>Back to Home</Button>
                 </div>
-            </div>
+            </PageLayout>
         );
     }
 
@@ -225,320 +199,262 @@ function PostPublishPage() {
         (offsets, group, i) => [...offsets, offsets[i] + group.items.length],
         [0]
     );
+    const comments = currentRecipe.comments || [];
+    const hasRating = currentRecipe.averageRating !== null && currentRecipe.averageRating !== undefined
+        && !Number.isNaN(Number(currentRecipe.averageRating));
+    const authorName = currentRecipe.authorName || currentRecipe.user?.username || currentRecipe.user?.email || 'Unknown author';
+    const titleImage = currentRecipe.titleImageUrl || currentRecipe.titleImage;
+    const steps = currentRecipe.descriptionBlocks || [];
+    const mealType = mealTypeLabel(currentRecipe.mealtype) || 'Meal';
+    const commenterName = isAuthenticated ? (user?.username || user?.email || 'You') : 'Guest';
 
     return (
-        <div className="publish-page">
-            <Header />
-            
-            <div className="publish-container">
-                <main id="main-content" tabIndex={-1} className="publish-main">
-                    {/* Breadcrumb */}
-                    <div className="breadcrumb">
+        <PageLayout mainClassName={styles.main}>
+            <div className={styles.layout}>
+                <div className={styles.content}>
+                    <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
                         <Link to="/">Home</Link>
-                        <span className="separator">›</span>
-                        <Link to="/">{getMealTypeDisplay(currentRecipe.mealtype)}</Link>
-                        <span className="separator">›</span>
-                        <span className="current">{currentRecipe.title}</span>
-                    </div>
+                        <span aria-hidden="true">&gt;</span>
+                        <Link to={`/search?mealtype=${currentRecipe.mealtype || ''}`}>{mealType}</Link>
+                        <span aria-hidden="true">&gt;</span>
+                        <span aria-current="page">{currentRecipe.title}</span>
+                    </nav>
 
-                    {/* Recipe Header */}
-                    <div className="recipe-header">
-                        <h1 className="recipe-title" data-testid="recipe-title">{currentRecipe.title}</h1>
-                        <div className="recipe-meta">
-                            <div className="rating">
-                                {renderStars(currentRecipe.averageRating)}
-                                {currentRecipe.averageRating != null && (
-                                    <span className="rating-value">{currentRecipe.averageRating}</span>
-                                )}
-                                {currentRecipe.totalComments != null && (
-                                    <span className="rating-count">({currentRecipe.totalComments})</span>
-                                )}
-                            </div>
-                            <span className="meta-separator">•</span>
-                            <span className="author">
-                                by {currentRecipe.authorName || currentRecipe.user?.username || currentRecipe.user?.email || 'Unknown author'}
-                            </span>
-                            <span className="meta-separator">•</span>
-                            <span className="date">{new Date(currentRecipe.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <header className={styles.header}>
+                        <h1 className={styles.title} data-testid="recipe-title">{currentRecipe.title}</h1>
+                        <div className={styles.meta} data-testid="recipe-rating">
+                            {hasRating ? (
+                                <span
+                                    className={styles.rating}
+                                    role="img"
+                                    aria-label={`Rated ${Number(currentRecipe.averageRating).toFixed(1)} out of 5${currentRecipe.totalComments ? ` from ${currentRecipe.totalComments} ratings` : ''}`}
+                                >
+                                    <StarRating value={currentRecipe.averageRating} size={27} className={styles.stars} />
+                                    <span className={styles.ratingValue}>{Number(currentRecipe.averageRating).toFixed(1)}</span>
+                                </span>
+                            ) : (
+                                <span className={styles.rating}>
+                                    <StarRating value={0} size={27} className={styles.stars} />
+                                    <span className={styles.noRatings}>No ratings yet</span>
+                                </span>
+                            )}
+                            <span>By {authorName} | Published {formatDate(currentRecipe.createdAt)}</span>
                         </div>
-                        <p className="recipe-description">{currentRecipe.description}</p>
-                        
-                        <div className="action-buttons">
-                            <button
-                                type="button"
-                                className="action-btn"
-                                onClick={handleShare}
-                                data-testid="share-recipe-btn"
-                            >
-                                <span className="action-icon" aria-hidden="true">↗</span> Share
-                            </button>
-                            <button
-                                type="button"
-                                className="action-btn"
-                                onClick={handlePrint}
-                                data-testid="print-recipe-btn"
-                            >
-                                <span className="action-icon" aria-hidden="true">🖨</span> Print
-                            </button>
-                            <button
-                                type="button"
-                                className={`action-btn save-btn ${isSaved ? 'saved' : ''}`}
+                        {currentRecipe.description && <p className={styles.description}>{currentRecipe.description}</p>}
+
+                        <div className={`${styles.actions} no-print`}>
+                            <Button variant="outline" size="sm" className={styles.action} onClick={handleShare} data-testid="share-recipe-btn">
+                                <ShareIcon size={22} /> Share
+                            </Button>
+                            <Button variant="outline" size="sm" className={styles.action} onClick={handlePrint} data-testid="print-recipe-btn">
+                                <PrintIcon size={22} /> Print
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className={styles.action}
                                 onClick={handleSaveToggle}
                                 disabled={saveLoading}
                                 data-testid="save-recipe-btn"
                                 aria-pressed={isSaved}
                                 title={isAuthenticated ? (isSaved ? 'Remove from saved recipes' : 'Save this recipe') : 'Log in to save'}
                             >
-                                <span className="action-icon">{isSaved ? '♥' : '♡'}</span>
+                                <SaveHeartIcon size={22} />
                                 {saveLoading ? 'Saving…' : isSaved ? 'Saved' : 'Save'}
-                            </button>
+                            </Button>
                         </div>
                         {saveError && (
-                            <p role="alert" data-testid="save-error" style={{ color: 'crimson' }}>
+                            <p role="alert" data-testid="save-error" className={styles.error}>
                                 {saveError}
                             </p>
                         )}
                         {shareMessage && (
-                            <p role="status" data-testid="share-status" aria-live="polite">
+                            <p role="status" data-testid="share-status" aria-live="polite" className={styles.shareStatus}>
                                 {shareMessage}
                             </p>
                         )}
-                    </div>
+                    </header>
 
-                    {/* Title Image — accept both contract aliases */}
-                    {(currentRecipe.titleImageUrl || currentRecipe.titleImage) && (
-                        <div className="title-image-container">
-                            <img 
-                                src={currentRecipe.titleImageUrl || currentRecipe.titleImage} 
-                                alt={currentRecipe.title}
-                                className="title-image"
-                            />
-                        </div>
-                    )}
+                    {titleImage && <img src={titleImage} alt={currentRecipe.title} className={styles.hero} />}
 
-                    {/* Recipe Info Cards */}
-                    <div className="recipe-info-cards">
-                        <div className="info-card">
-                            <span className="info-label">Servings</span>
-                            <span className="info-value">{currentRecipe.servingSize || 1}</span>
+                    <dl className={styles.facts}>
+                        <div className={styles.fact}>
+                            <dt>Servings</dt>
+                            <dd>{currentRecipe.servingSize || 1}</dd>
                         </div>
-                        <div className="info-card">
-                            <span className="info-label">Level</span>
-                            <span className="info-value">{getLevelText(currentRecipe.level)}</span>
+                        <div className={styles.fact}>
+                            <dt>Level</dt>
+                            <dd>{getLevelText(currentRecipe.level)}</dd>
                         </div>
-                        <div className="info-card">
-                            <span className="info-label">Prep time</span>
-                            <span className="info-value">{currentRecipe.prepTime || 0} min</span>
+                        <div className={styles.fact}>
+                            <dt>Prep time</dt>
+                            <dd>{currentRecipe.prepTime || 0} mins</dd>
                         </div>
-                        <div className="info-card">
-                            <span className="info-label">Cook time</span>
-                            <span className="info-value">{currentRecipe.cookTime || 0} min</span>
+                        <div className={styles.fact}>
+                            <dt>Cook time</dt>
+                            <dd>{currentRecipe.cookTime || 0} mins</dd>
                         </div>
-                        <div className="info-card highlight">
-                            <span className="info-label">Total time</span>
-                            <span className="info-value">{totalTime} min</span>
+                        <div className={styles.fact}>
+                            <dt>Total time</dt>
+                            <dd>{totalTime} mins</dd>
                         </div>
-                    </div>
+                    </dl>
 
-                    {/* Ingredients Section */}
-                    <section className="recipe-section">
-                        <h2>Ingredients</h2>
+                    <section className={styles.section}>
+                        <h2 className={styles.sectionTitle}>Ingredients</h2>
                         {ingredientGroups.length > 0 ? (
-                            <div className="ingredients-list" data-testid="recipe-ingredients">
+                            <div className={styles.ingredients} data-testid="recipe-ingredients">
                                 {ingredientGroups.map((group, groupIndex) => (
-                                    <div key={groupIndex} className="ingredient-group-view" data-testid={`recipe-ingredient-group-${groupIndex}`}>
-                                        {group.heading && <h3 className="ingredient-group-heading">{group.heading}</h3>}
-                                        {group.items.map((ingredient, index) => {
-                                            const key = `${groupIndex}-${index}`;
-                                            const flatIndex = groupOffsets[groupIndex] + index;
-                                            return (
-                                                <div 
-                                                    key={key} 
-                                                    className={`ingredient-row ${checkedIngredients[key] ? 'checked' : ''}`}
-                                                    onClick={() => toggleIngredient(key)}
-                                                    data-testid={`recipe-ingredient-${flatIndex}`}
-                                                >
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={checkedIngredients[key] || false}
-                                                        onChange={() => toggleIngredient(key)}
-                                                        className="ingredient-checkbox"
-                                                    />
-                                                    <span className="ingredient-text">
-                                                        {[ingredient.amount || ingredient.measurement, ingredient.unit, ingredient.name || ingredient.value]
-                                                            .filter(Boolean)
-                                                            .join(' ')}
-                                                    </span>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="no-content">No ingredients listed</p>
-                        )}
-                    </section>
-
-                    {/* Directions Section */}
-                    <section className="recipe-section">
-                        <h2>Directions</h2>
-                        {currentRecipe.descriptionBlocks && currentRecipe.descriptionBlocks.length > 0 ? (
-                            <div className="directions-list" data-testid="recipe-directions">
-                                {currentRecipe.descriptionBlocks.map((block, index) => (
-                                    <div key={block.id || index} className="direction-step" data-testid={`recipe-step-${index}`}>
-                                        <h3 className="step-title">Step {block.step || index + 1}</h3>
-                                        <p className="step-content">{block.content || block.description}</p>
-                                        {block.imageUrl && (
-                                            <div className="step-image-container">
-                                                <img 
-                                                    src={block.imageUrl} 
-                                                    alt={`Step ${block.step || index + 1}`}
-                                                    className="step-image"
-                                                />
-                                            </div>
+                                    <div key={groupIndex} className={styles.ingredientGroup} data-testid={`recipe-ingredient-group-${groupIndex}`}>
+                                        {group.heading && (
+                                            <h3 className={styles.groupHeading} data-testid="ingredient-group-heading">{group.heading}</h3>
                                         )}
+                                        <ul className={styles.ingredientList}>
+                                            {group.items.map((ingredient, index) => {
+                                                const key = `${groupIndex}-${index}`;
+                                                const flatIndex = groupOffsets[groupIndex] + index;
+                                                return (
+                                                    <li key={key} data-testid={`recipe-ingredient-${flatIndex}`}>
+                                                        <Checkbox
+                                                            className={styles.ingredient}
+                                                            checked={checkedIngredients[key] || false}
+                                                            onChange={() => toggleIngredient(key)}
+                                                            label={[ingredient.amount || ingredient.measurement, ingredient.unit, ingredient.name || ingredient.value]
+                                                                .filter(Boolean)
+                                                                .join(' ')}
+                                                        />
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="no-content">No directions listed</p>
+                            <p className={styles.empty}>No ingredients listed</p>
                         )}
                     </section>
 
-                    {/* Note Section */}
+                    <section className={styles.section}>
+                        <h2 className={styles.sectionTitle}>Directions</h2>
+                        {steps.length > 0 ? (
+                            <ol className={styles.steps} data-testid="recipe-directions">
+                                {steps.map((block, index) => (
+                                    <li key={block.id || index} className={styles.step} data-testid={`recipe-step-${index}`}>
+                                        <h3 className={styles.stepTitle}>Step {block.step || index + 1}</h3>
+                                        <p className={styles.stepText}>{block.content || block.description}</p>
+                                        {block.imageUrl && (
+                                            <img src={block.imageUrl} alt={`Step ${block.step || index + 1}`} className={styles.stepImage} />
+                                        )}
+                                    </li>
+                                ))}
+                            </ol>
+                        ) : (
+                            <p className={styles.empty}>No directions listed</p>
+                        )}
+                    </section>
+
                     {currentRecipe.note && (
-                        <section className="recipe-section note-section">
-                            <h2>Note</h2>
-                            <p className="note-content">{currentRecipe.note}</p>
+                        <section className={`${styles.section} ${styles.note}`}>
+                            <h2 className={styles.sectionTitle}>Note</h2>
+                            <p className={styles.stepText}>{currentRecipe.note}</p>
                         </section>
                     )}
 
-                    {/* Comments Section — persisted via API */}
-                    <section className="recipe-section comments-section">
-                        <h2>
-                            {(currentRecipe.comments?.length || 0) > 0
-                                ? `${currentRecipe.comments.length} Comments`
-                                : 'Comments'}
+                    <section className={`${styles.section} ${styles.comments}`}>
+                        <h2 className={styles.sectionTitle}>
+                            {comments.length > 0 ? `${comments.length} Comments` : 'Comments'}
                         </h2>
-                        
-                        <div className="comment-form">
-                            <div className="comment-avatar">
-                                <span>{(user?.username || user?.email || '?').charAt(0).toUpperCase()}</span>
-                            </div>
-                            <div className="comment-input-wrapper">
-                                <span className="comment-label">{isAuthenticated ? (user?.email || 'You') : 'Guest'}</span>
-                                {commentError && <p role="alert" className="comment-error">{commentError}</p>}
-                                <textarea 
-                                    className="comment-input"
-                                    placeholder={isAuthenticated ? 'Leave a comment for this recipe (optional)' : 'Log in to leave a comment'}
-                                    aria-label="Comment (optional)"
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    disabled={!isAuthenticated || commentSubmitting}
-                                />
-                                <div className="comment-actions">
-                                    <div className="rating-input" role="group" aria-label="Rating (required)" data-testid="comment-rating">
-                                        {[1, 2, 3, 4, 5].map(star => (
-                                            <button
-                                                type="button"
-                                                key={star}
-                                                className="star-input"
-                                                aria-label={`${star} stars`}
-                                                aria-pressed={star === commentRating}
-                                                onClick={() => setCommentRating(star)}
-                                                disabled={!isAuthenticated || commentSubmitting}
-                                            >
-                                                {star <= commentRating ? '★' : '☆'}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <button 
-                                        className="submit-comment-btn"
-                                        onClick={handleCommentSubmit}
-                                        disabled={!isAuthenticated || commentSubmitting || !commentRating}
-                                        title={commentRating ? undefined : 'Choose a star rating first'}
-                                        data-testid="comment-submit"
-                                    >
-                                        {commentSubmitting ? 'Submitting…' : 'Submit'}
-                                    </button>
+
+                        <div className={`${styles.comment} no-print`}>
+                            <div className={styles.commenter}>
+                                <Avatar src={isAuthenticated ? user?.pfpUrl : null} alt="" size={50} />
+                                <div>
+                                    <p className={styles.commenterName}>{commenterName}</p>
+                                    <p className={styles.commentDate}>{formatDate(new Date())}</p>
                                 </div>
+                            </div>
+                            {commentError && <p role="alert" className={styles.error}>{commentError}</p>}
+                            <textarea
+                                className={styles.commentInput}
+                                placeholder={isAuthenticated ? 'Leave a comment for this recipe' : 'Log in to leave a comment'}
+                                aria-label="Comment (optional)"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                disabled={!isAuthenticated || commentSubmitting}
+                            />
+                            <div className={styles.commentActions}>
+                                <div className={styles.ratingInput} role="group" aria-label="Rating (required)" data-testid="comment-rating">
+                                    {[1, 2, 3, 4, 5].map(star => (
+                                        <button
+                                            type="button"
+                                            key={star}
+                                            className={styles.starButton}
+                                            aria-label={`${star} stars`}
+                                            aria-pressed={star === commentRating}
+                                            onClick={() => setCommentRating(star)}
+                                            disabled={!isAuthenticated || commentSubmitting}
+                                        >
+                                            <StarIcon size={38} filled={star <= commentRating} />
+                                        </button>
+                                    ))}
+                                    <span className={styles.ratingScore}>{commentRating.toFixed(1)}</span>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    className={styles.submit}
+                                    onClick={handleCommentSubmit}
+                                    disabled={!isAuthenticated || commentSubmitting || !commentRating}
+                                    title={commentRating ? undefined : 'Choose a star rating first'}
+                                    data-testid="comment-submit"
+                                >
+                                    {commentSubmitting ? 'Submitting…' : 'Submit'}
+                                </Button>
                             </div>
                         </div>
 
-                        {(currentRecipe.comments?.length || 0) > 0 && (
-                            <div className="comments-list">
-                                {currentRecipe.comments.map(c => {
+                        {comments.length > 0 && (
+                            <ul className={styles.commentList} data-testid="comments-list">
+                                {comments.map(c => {
                                     const author = c.user?.username || c.user?.email || 'User';
                                     return (
-                                        <div key={c.id} className="comment-item">
-                                            <div className="comment-avatar">
-                                                <span>{author.charAt(0).toUpperCase()}</span>
-                                            </div>
-                                            <div className="comment-body">
-                                                <div className="comment-header">
-                                                    <span className="comment-author">{author}</span>
-                                                    <span className="comment-date">
-                                                        {new Date(c.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                                    </span>
-                                                </div>
-                                                {c.body && <p className="comment-text">{c.body}</p>}
-                                                <div className="comment-rating">
-                                                    {renderStars(c.rating)}
-                                                    <span className="rating-value">{c.rating}</span>
+                                        <li key={c.id} className={styles.comment} data-testid="comment-item">
+                                            <div className={styles.commenter}>
+                                                <Avatar src={c.user?.pfpUrl} alt="" size={50} />
+                                                <div>
+                                                    <p className={styles.commenterName}>{author}</p>
+                                                    <p className={styles.commentDate}>{formatDate(c.createdAt)}</p>
                                                 </div>
                                             </div>
-                                        </div>
+                                            {c.body && <p className={styles.commentText}>{c.body}</p>}
+                                            <div className={styles.commentRating}>
+                                                <StarRating value={c.rating} size={27} className={styles.stars} />
+                                                <span className={styles.ratingValue}>{Number(c.rating).toFixed(1)}</span>
+                                            </div>
+                                        </li>
                                     );
                                 })}
-                            </div>
+                            </ul>
                         )}
                     </section>
-                </main>
+                </div>
 
-                {/* Sidebar */}
-                <aside className="publish-sidebar">
-                    <h3 className="sidebar-title">What's trending</h3>
-                    <div className="trending-recipes">
-                        {trendingRecipes.length > 0 ? (
-                            trendingRecipes.map(recipe => (
-                                <div 
-                                    key={recipe.id} 
-                                    className="trending-card"
-                                    onClick={() => navigate(`/recipe/${recipe.id}`)}
-                                >
-                                    <div className="trending-image-container">
-                                        {recipe.titleImageUrl ? (
-                                            <img 
-                                                src={recipe.titleImageUrl} 
-                                                alt={recipe.title}
-                                                className="trending-image"
-                                            />
-                                        ) : (
-                                            <div className="trending-placeholder">
-                                                <span>🍽</span>
-                                            </div>
-                                        )}
-                                        <button className="save-icon">♡</button>
-                                    </div>
-                                    <div className="trending-info">
-                                        <span className="trending-category">{getMealTypeDisplay(recipe.mealtype)}</span>
-                                        <h4 className="trending-title">{recipe.title}</h4>
-                                        <div className="trending-rating">
-                                            <RatingSummary averageRating={recipe.averageRating} ratingCount={recipe.ratingCount} />
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="no-content">No other recipes yet</p>
-                        )}
-                    </div>
+                <aside className={`${styles.sidebar} no-print`} data-testid="trending-recipes" aria-labelledby="trending-title">
+                    <h2 className={styles.sidebarTitle} id="trending-title">What’s trending</h2>
+                    {trendingRecipes.length > 0 ? (
+                        <ul className={styles.trendingList}>
+                            {trendingRecipes.map(recipe => (
+                                <li key={recipe.id}>
+                                    <RecipeCard recipe={recipe} />
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className={styles.empty}>No other recipes yet</p>
+                    )}
                 </aside>
             </div>
-
-            <Footer />
-        </div>
+        </PageLayout>
     );
 }
 
