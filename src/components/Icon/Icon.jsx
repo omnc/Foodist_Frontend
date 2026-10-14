@@ -154,7 +154,7 @@ export function TrashIcon(props) {
 export function DragHandleIcon(props) {
   return (
     <Svg {...props}>
-      {[8, 16].flatMap((cx) => [5, 10, 15, 20].map((cy) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.5" fill="currentColor" />))}
+      {[8.5, 15.5].flatMap((cx) => [5, 12, 19].map((cy) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2" fill="currentColor" />))}
     </Svg>
   );
 }
