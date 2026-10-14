@@ -33,11 +33,11 @@ test.describe('Ratings, recipe cards, my recipes (mocked API)', () => {
 
     await page.goto(`/#/recipe/${current.id}`);
     await expect(page.getByTestId('recipe-title')).toHaveText('Current');
-    const sidebar = page.locator('.publish-sidebar');
+    const sidebar = page.getByTestId('trending-recipes');
     await expect(sidebar).toContainText('No ratings yet');
     await expect(sidebar).toContainText('5.0');
     await expect(sidebar).not.toContainText('4.4');
-    await expect(page.locator('.recipe-header .rating')).toContainText('No ratings yet');
+    await expect(page.getByTestId('recipe-rating')).toContainText('No ratings yet');
   });
 
   test('comment requires a star rating, allows blank text, and updates the average', async ({ page }) => {
@@ -51,8 +51,8 @@ test.describe('Ratings, recipe cards, my recipes (mocked API)', () => {
     await expect(submit).toBeEnabled();
     await submit.click();
 
-    await expect(page.locator('.recipe-header .rating')).toContainText('4');
-    await expect(page.locator('.comments-list .comment-item')).toHaveCount(1);
+    await expect(page.getByTestId('recipe-rating')).toContainText('4');
+    await expect(page.getByTestId('comments-list').getByTestId('comment-item')).toHaveCount(1);
     await expect(submit).toBeDisabled();
   });
 

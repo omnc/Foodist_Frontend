@@ -51,6 +51,7 @@ export default function UserMenu() {
                 {user?.username || user?.email}
               </p>
               <MenuItem onClick={() => go('/myPage')}>Profile</MenuItem>
+              <MenuItem onClick={() => go('/editProfile')}>Edit profile</MenuItem>
               <MenuItem onClick={() => go('/postPage')}>Add Recipe</MenuItem>
               <MenuItem onClick={() => go('/saved')}>Saved recipes</MenuItem>
               <MenuItem onClick={() => go('/changePassword')}>Change password</MenuItem>

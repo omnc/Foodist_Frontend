@@ -1,0 +1,9 @@
+.stars {
+    display: inline-flex;
+    line-height: 0;
+}
+
+/* margin rather than flex gap so a page can pull stars closer together with a negative value */
+.stars > * + * {
+    margin-left: var(--star-gap, 0);
+}

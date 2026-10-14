@@ -79,10 +79,10 @@ export function AvatarIcon({ size = 50, className }) {
           <circle cx="25" cy="25" r="24" />
         </clipPath>
       </defs>
-      <circle cx="25" cy="25" r="24.25" fill="var(--color-white)" stroke="var(--color-ink)" strokeWidth="1.5" />
+      <circle cx="25" cy="25" r="24.25" fill="var(--color-white)" stroke="var(--color-ink)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
       <g clipPath="url(#avatar-clip)">
-        <circle cx="25" cy="20" r="8.2" fill="var(--color-yellow)" stroke="var(--color-ink)" strokeWidth="1.5" />
-        <ellipse cx="25" cy="48" rx="15.5" ry="11.5" fill="var(--color-yellow)" stroke="var(--color-ink)" strokeWidth="1.5" />
+        <circle cx="25" cy="20" r="8.2" fill="var(--color-yellow)" stroke="var(--color-ink)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+        <ellipse cx="25" cy="48" rx="15.5" ry="11.5" fill="var(--color-yellow)" stroke="var(--color-ink)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
       </g>
     </svg>
   );
@@ -154,7 +154,7 @@ export function TrashIcon(props) {
 export function DragHandleIcon(props) {
   return (
     <Svg {...props}>
-      {[8, 16].flatMap((cx) => [5, 10, 15, 20].map((cy) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.5" fill="currentColor" />))}
+      {[8.5, 15.5].flatMap((cx) => [5, 12, 19].map((cy) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2" fill="currentColor" />))}
     </Svg>
   );
 }
@@ -221,12 +221,23 @@ export function LinkedinIcon(props) {
   );
 }
 
-export function FacebookIcon(props) {
+export function FacebookIcon({ circle = false, ...props }) {
+  if (circle) {
+    return (
+      <Svg {...props}>
+        <circle cx="12" cy="12" r="10.5" fill="currentColor" />
+        <path
+          fill="var(--color-white)"
+          d="M13.4 22.4v-8h2.5l.4-3h-2.9V9.5c0-.8.3-1.4 1.500-1.400h1.500V5.400c-.3 0-1.200-.1-2.200-.1-2.200 0-3.700 1.400-3.700 3.800v2.300H7.900v3h2.600v8h2.900Z"
+        />
+      </Svg>
+    );
+  }
   return (
     <Svg {...props}>
       <path
         fill="currentColor"
-        d="M13.6 21v-8h2.7l.4-3.2h-3.1V7.8c0-.9.3-1.5 1.6-1.5h1.7V3.4c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2v2.3H7.6V13h2.8v8h3.2Z"
+        d="M13.6 21v-8h2.7l.4-3.200h-3.100V7.800c0-.9.3-1.500 1.600-1.500h1.700V3.400c-.3 0-1.300-.1-2.400-.1-2.400 0-4.100 1.500-4.100 4.200v2.300H7.600V13h2.800v8h3.200Z"
       />
     </Svg>
   );
@@ -236,6 +247,27 @@ export function XIcon(props) {
   return (
     <Svg {...props}>
       <path fill="currentColor" d="M17.8 3h3L14.2 10.6 22 21h-6.1l-4.8-6.3L5.6 21h-3l7.1-8.1L2.2 3h6.2l4.3 5.7L17.8 3Zm-1.1 16.2h1.7L7.6 4.7H5.8l10.9 14.5Z" />
+    </Svg>
+  );
+}
+
+export function GearIcon(props) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.2a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.2a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.2a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.2a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"
+        {...STROKE}
+        strokeWidth={1.2}
+      />
+      <circle cx="12" cy="12" r="3" {...STROKE} strokeWidth={1.2} />
+    </Svg>
+  );
+}
+
+export function PencilIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M17 3.5a2.1 2.1 0 0 1 3 3L7.5 19 3 20.5 4.500 16 17 3.500Z" {...STROKE} strokeWidth={1.3} />
     </Svg>
   );
 }

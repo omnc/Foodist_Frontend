@@ -49,6 +49,7 @@
     /* Shape */
     --radius-card: 0.625rem;
     --radius-field: 0.25rem;
+    --radius-field-lg: 0.625rem;
     --radius-pill: 999px;
     --border: 1px solid var(--color-ink);
 
